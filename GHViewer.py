@@ -2,7 +2,7 @@
 """
 Created on Fri May 24 11:41:31 2019
 
-@author: InnSight
+@author: wstreyer
 """
 
 import urllib.request
