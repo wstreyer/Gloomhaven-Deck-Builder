@@ -1,0 +1,1 @@
+{1: {'Title': 'Trample', 'Initiative': '72', 'Enhancements': {}}, 2: {'Title': 'Eye for an Eye', 'Initiative': '18', 'Enhancements': {}}}
