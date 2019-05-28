@@ -12,6 +12,7 @@ import tkinter.ttk as ttk
 from PIL import ImageTk, Image
 import threading
 import time
+from tika import parser
 
 
 resourceurl = 'https://drive.google.com/uc?export=download&id='
@@ -188,7 +189,7 @@ class App:
 
     def save_card(self):
         f = open('ghclass\{}\cards.txt'.format(self.ghclass),"w")
-        f.write(str(self.card_data))
+        f.write(str(self.card_data[self.ghclass]))
         f.close()
         print(self.card_data)
 
@@ -214,7 +215,7 @@ class App:
             self.get_card(self.index)
             self.update_card()
 
-    def parse_cards(self):
+    def extract_cards(self):
         #Parse pdf to get list of image objects
         #pdf contains card fronts and backs. Backs are skipped to same time.
         self.cards = []
@@ -231,6 +232,19 @@ class App:
             if len(self.cards) == self.num_cards:
                 self.status_label.config(text = '{}: ready'.format(self.classname))
     
+    def parse_cards(self):
+        #raw = parser.from_file(_)
+        #parse the contents of raw['content'] into a dictionary
+        pass
+
+    def export_cards(self):
+        for ndx, card in enumerate(self.cards):
+            card_index = ndx + global_index[self.ghclass]
+            card.save('\\{}\\img\\{}.{}'.format(self.ghclass, card_index, self.fmt), self.fmt)
+    
+    def parse_enchancements(self):
+        pass
+
     def get_class_cards(self):
         #Class metadata
         self.ghclass = code_names_inv[self.classvar.get()]
@@ -255,8 +269,8 @@ class App:
         self.data = response.read()
         
         #Parse cards from pdf in background thread
-        self.parse_thread = threading.Thread(target = self.parse_cards)
-        self.parse_thread.start()
+        self.extract_thread = threading.Thread(target = self.extract_cards)
+        self.extract_thread.start()
 
     def get_card(self, index = 0):
         while len(self.cards) <= index:
