@@ -14,6 +14,8 @@ from PIL import ImageTk, Image
 import threading
 import time
 from tika import parser
+import cv2
+import numpy as np
 
 
 resourceurl = 'https://drive.google.com/uc?export=download&id='
@@ -133,6 +135,10 @@ class App:
         self.edit_card_button.pack(side = tk.LEFT)
         self.save_card_button = tk.Button(self.edit_frame, text = 'Save', command = lambda: self.save_card())
         self.save_card_button.pack(side = tk.LEFT)
+        self.enchancement_label = tk.Label(self.stats_frame, text = 'Enhancements')
+        self.enchancement_label.pack(anchor = tk.NW)
+        self.enhancement_button = tk.Button(self.stats_frame, text = 'Show', command = lambda: self.find_enchancements())
+        self.enhancement_button.pack(anchor = tk.NW)
 
         #Viewer Frame
         self.viewer_frame = tk.Frame(self.viewer)
@@ -224,32 +230,70 @@ class App:
         for ndx in range(1, 2*self.num_cards +1, 2):
             if len(self.cards) > 0:
                 self.status_label.config(text = '{}: loading card {}/{}'.format(self.classname, ndx//2 + 1, self.num_cards))
+            
+            #Extract image
             card = pdf2image.convert_from_bytes(self.data, dpi = self.dpi,
                                                       thread_count=self.thread_count,
                                                       first_page=ndx,
                                                       last_page=ndx,
                                                       fmt=self.fmt)
+            #Add to list of cards for class
             self.cards.append(card[0])
+            
+            #Save the card image
+            card_index = ndx//2 + global_index[self.ghclass]
+            fpath = 'ghclass\{}\img'.format(self.ghclass)
+            Path(fpath).mkdir(exist_ok=True,parents=True)
+            card[0].save('{}\{}.{}'.format(fpath, card_index, self.fmt))
+
+            #Update status bar when all class cards are loaded
             if len(self.cards) == self.num_cards:
                 self.status_label.config(text = '{}: ready'.format(self.classname))
     
         #Cache cards locally
-        self.export_cards()
+        #self.save_cards()
 
     def parse_cards(self):
         #raw = parser.from_file(_)
         #parse the contents of raw['content'] into a dictionary
         pass
 
-    def export_cards(self):
+    def save_cards(self):
         for ndx, card in enumerate(self.cards):
             card_index = ndx + global_index[self.ghclass]
             fpath = 'ghclass\{}\img'.format(self.ghclass)
             Path(fpath).mkdir(exist_ok=True,parents=False)
             card.save('{}\{}.{}'.format(fpath, card_index, self.fmt))
     
-    def parse_enchancements(self):
-        pass
+    def find_enchancements(self):
+        #resource locations
+        imgpath = 'ghclass\{}\img'.format(self.ghclass)
+        imgfile = '{}.{}'.format(self.card_index, self.fmt)
+        print('{}\{}'.format(imgpath, imgfile))
+
+        #Load image
+        data = cv2.imread('{}\{}'.format(imgpath, imgfile))
+        gray_img = cv2.cvtColor(data, cv2.COLOR_BGR2GRAY)
+        img = cv2.medianBlur(gray_img, 5)
+
+        #Detection parameters
+        params = {'mdist': 10, 'p1': 30, 'p2': 15, 'minr': 0, 'maxr':4}
+        circles = cv2.HoughCircles(img,cv2.HOUGH_GRADIENT,1,
+                                params['mdist'],
+                                param1 = params['p1'],
+                                param2 = params['p2'],
+                                minRadius = params['minr'],
+                                maxRadius=  params['maxr'])
+        circles = np.uint16(np.around(circles))
+
+        #Plot all circles
+        for i in circles[0,:]:
+            # draw the outer circle
+            cv2.circle(data,(i[0],i[1]),i[2],(0,0,255),2)
+
+        #Show Data
+        #cv2.imwrite("data_circles.jpg", data)
+        cv2.imshow("HoughCirlces", data)
 
     def get_class_cards(self):
         #Class metadata
