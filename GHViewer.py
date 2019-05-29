@@ -5,6 +5,7 @@ Created on Fri May 24 11:41:31 2019
 @author: wstreyer
 """
 
+from pathlib import Path
 import urllib.request
 import pdf2image
 import tkinter as tk
@@ -232,6 +233,9 @@ class App:
             if len(self.cards) == self.num_cards:
                 self.status_label.config(text = '{}: ready'.format(self.classname))
     
+        #Cache cards locally
+        self.export_cards()
+
     def parse_cards(self):
         #raw = parser.from_file(_)
         #parse the contents of raw['content'] into a dictionary
@@ -240,7 +244,9 @@ class App:
     def export_cards(self):
         for ndx, card in enumerate(self.cards):
             card_index = ndx + global_index[self.ghclass]
-            card.save('\\{}\\img\\{}.{}'.format(self.ghclass, card_index, self.fmt), self.fmt)
+            fpath = 'ghclass\{}\img'.format(self.ghclass)
+            Path(fpath).mkdir(exist_ok=True,parents=False)
+            card.save('{}\{}.{}'.format(fpath, card_index, self.fmt))
     
     def parse_enchancements(self):
         pass
