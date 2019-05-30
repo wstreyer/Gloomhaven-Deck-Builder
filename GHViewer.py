@@ -139,6 +139,34 @@ class App:
         self.enchancement_label.pack(anchor = tk.NW)
         self.enhancement_button = tk.Button(self.stats_frame, text = 'Show', command = lambda: self.find_enchancements())
         self.enhancement_button.pack(anchor = tk.NW)
+        
+        p1 = tk.IntVar(root)
+        p1.set(30)
+        p1_label = tk.Label(self.stats_frame, text = 'P1')
+        p1_label.pack(anchor = tk. NW)
+        self.p1_spin = tk.Spinbox(self.stats_frame, from_ = 20, to = 40, textvariable = p1)
+        self.p1_spin.pack(anchor = tk.NW)
+
+        p2 = tk.IntVar(root)
+        p2.set(15)
+        p2_label = tk.Label(self.stats_frame, text = 'p2')
+        p2_label.pack(anchor = tk. NW)
+        self.p2_spin = tk.Spinbox(self.stats_frame, from_ = 5, to = 25, textvariable = p2)
+        self.p2_spin.pack(anchor = tk.NW)
+
+        maxr = tk.IntVar(root)
+        maxr.set(4)
+        maxr_label = tk.Label(self.stats_frame, text = 'maxr')
+        maxr_label.pack(anchor = tk. NW)
+        self.maxr_spin = tk.Spinbox(self.stats_frame, from_ = 0, to = 10, textvariable = maxr)
+        self.maxr_spin.pack(anchor = tk.NW)
+
+        minr = tk.IntVar(root)
+        minr.set(0)
+        minr_label = tk.Label(self.stats_frame, text = 'minr')
+        minr_label.pack(anchor = tk. NW)
+        self.minr_spin = tk.Spinbox(self.stats_frame, from_ = 0, to = 10, textvariable = minr)
+        self.minr_spin.pack(anchor = tk.NW)
 
         #Viewer Frame
         self.viewer_frame = tk.Frame(self.viewer)
@@ -269,7 +297,6 @@ class App:
         #resource locations
         imgpath = 'ghclass\{}\img'.format(self.ghclass)
         imgfile = '{}.{}'.format(self.card_index, self.fmt)
-        print('{}\{}'.format(imgpath, imgfile))
 
         #Load image
         data = cv2.imread('{}\{}'.format(imgpath, imgfile))
@@ -277,7 +304,13 @@ class App:
         img = cv2.medianBlur(gray_img, 5)
 
         #Detection parameters
-        params = {'mdist': 10, 'p1': 30, 'p2': 15, 'minr': 0, 'maxr':4}
+        #params = {'mdist': 10, 'p1': 30, 'p2': 15, 'minr': 0, 'maxr':4}
+        params = {'mdist': 10, 
+                'p1': int(self.p1_spin.get()), 
+                'p2': int(self.p2_spin.get()), 
+                'minr': int(self.minr_spin.get()), 
+                'maxr': int(self.maxr_spin.get())}
+
         circles = cv2.HoughCircles(img,cv2.HOUGH_GRADIENT,1,
                                 params['mdist'],
                                 param1 = params['p1'],
