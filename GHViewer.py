@@ -86,6 +86,8 @@ class App:
         self.thread_count = 16
         self.fmt = 'png'
         self.card_data = {}
+        self.top = [36, 80, 300, 160]
+        self.btm = [36, 315, 300, 135]
 
         #Create a notebook
         self.nb = ttk.Notebook(self.main)
@@ -148,7 +150,7 @@ class App:
         self.p1_spin.pack(anchor = tk.NW)
 
         p2 = tk.IntVar(root)
-        p2.set(15)
+        p2.set(14)
         p2_label = tk.Label(self.stats_frame, text = 'p2')
         p2_label.pack(anchor = tk. NW)
         self.p2_spin = tk.Spinbox(self.stats_frame, from_ = 5, to = 25, textvariable = p2)
@@ -167,6 +169,35 @@ class App:
         minr_label.pack(anchor = tk. NW)
         self.minr_spin = tk.Spinbox(self.stats_frame, from_ = 0, to = 10, textvariable = minr)
         self.minr_spin.pack(anchor = tk.NW)
+
+        box = [256, 146, 300, 50]
+        x = tk.IntVar(root)
+        x.set(box[0])
+        x_label = tk.Label(self.stats_frame, text = 'x')
+        x_label.pack(anchor = tk. NW)
+        self.x_spin = tk.Spinbox(self.stats_frame, from_ = 0, to = 500, textvariable = x)
+        self.x_spin.pack(anchor = tk.NW)
+
+        y = tk.IntVar(root)
+        y.set(box[1])
+        y_label = tk.Label(self.stats_frame, text = 'y')
+        y_label.pack(anchor = tk. NW)
+        self.y_spin = tk.Spinbox(self.stats_frame, from_ = 0, to = 500, textvariable = y)
+        self.y_spin.pack(anchor = tk.NW)
+
+        w = tk.IntVar(root)
+        w.set(box[2])
+        w_label = tk.Label(self.stats_frame, text = 'w')
+        w_label.pack(anchor = tk. NW)
+        self.w_spin = tk.Spinbox(self.stats_frame, from_ = 0, to = 500, textvariable = w)
+        self.w_spin.pack(anchor = tk.NW)
+
+        h = tk.IntVar(root)
+        h.set(box[3])
+        h_label = tk.Label(self.stats_frame, text = 'h')
+        h_label.pack(anchor = tk. NW)
+        self.h_spin = tk.Spinbox(self.stats_frame, from_ = 0, to = 500, textvariable = h)
+        self.h_spin.pack(anchor = tk.NW)
 
         #Viewer Frame
         self.viewer_frame = tk.Frame(self.viewer)
@@ -304,7 +335,7 @@ class App:
         img = cv2.medianBlur(gray_img, 5)
 
         #Detection parameters
-        #params = {'mdist': 10, 'p1': 30, 'p2': 15, 'minr': 0, 'maxr':4}
+        #params = {'mdist': 10, 'p1': 30, 'p2': 14, 'minr': 0, 'maxr':4}
         params = {'mdist': 10, 
                 'p1': int(self.p1_spin.get()), 
                 'p2': int(self.p2_spin.get()), 
@@ -319,14 +350,36 @@ class App:
                                 maxRadius=  params['maxr'])
         circles = np.uint16(np.around(circles))
 
-        #Plot all circles
-        for i in circles[0,:]:
+        #Plot all circles + adjacent text box
+        x = 105
+        w = 180
+        h = 30
+        for circ in circles[0,:]:
             # draw the outer circle
-            cv2.circle(data,(i[0],i[1]),i[2],(0,0,255),2)
+            cv2.circle(data,(circ[0],circ[1]),circ[2],(0,0,255),2)
+            y = circ[1] - h//2
+            cv2.rectangle(data, (x, y), (x+w, y+h), (0,0,255), 2)
 
+        #Plot crop boxes
+        #User-defined box
+        x = int(self.x_spin.get())
+        y = int(self.y_spin.get())
+        w = int(self.w_spin.get())
+        h = int(self.h_spin.get())
+        cv2.rectangle(data, (x, y), (x+w, y+h), (0,0,255), 2)
+        
+        #Top action box
+        (x,y,w,h) = tuple(self.top)
+        cv2.rectangle(data, (x, y), (x+w, y+h), (0,0,255), 2)
+
+        #Bottom action box
+        (x,y,w,h) = tuple(self.btm)
+        cv2.rectangle(data, (x, y), (x+w, y+h), (0,0,255), 2)
+        
         #Show Data
         #cv2.imwrite("data_circles.jpg", data)
-        cv2.imshow("HoughCirlces", data)
+        cv2.imshow("Enhancements", data)
+        print(circles)
 
     def get_class_cards(self):
         #Class metadata

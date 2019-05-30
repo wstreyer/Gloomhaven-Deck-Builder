@@ -3,9 +3,11 @@ import numpy as np
 
 font = cv2.FONT_HERSHEY_COMPLEX
 
-img = cv2.imread("shapes.jpg", cv2.IMREAD_GRAYSCALE)
+imgpath = 'C:\\Users\\InnSight\Documents\\Github\Gloomhaven-Deck-Builder\\ghclass\\BR\\img'
+imgfile = '1.png'
+img = cv2.imread('{}\{}'.format(imgpath, imgfile), cv2.IMREAD_GRAYSCALE)
 _, threshold = cv2.threshold(img, 240, 255, cv2.THRESH_BINARY)
-_, contours, _ = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+_, contours = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
 for cnt in contours:
     approx = cv2.approxPolyDP(cnt, 0.01*cv2.arcLength(cnt, True), True)
