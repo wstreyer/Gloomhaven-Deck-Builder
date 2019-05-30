@@ -351,35 +351,77 @@ class App:
         circles = np.uint16(np.around(circles))
 
         #Plot all circles + adjacent text box
-        x = 105
+        x0 = 10
         w = 180
         h = 30
         for circ in circles[0,:]:
             # draw the outer circle
-            cv2.circle(data,(circ[0],circ[1]),circ[2],(0,0,255),2)
+            cv2.circle(data,(circ[0],circ[1]),circ[2],(0, 255,0),2)
+            x = circ[0] - w + x0
             y = circ[1] - h//2
-            cv2.rectangle(data, (x, y), (x+w, y+h), (0,0,255), 2)
+            cv2.rectangle(data, (x, y), (x+w, y+h), (0, 255,0), 2)
 
         #Plot crop boxes
+        '''
         #User-defined box
         x = int(self.x_spin.get())
         y = int(self.y_spin.get())
         w = int(self.w_spin.get())
         h = int(self.h_spin.get())
-        cv2.rectangle(data, (x, y), (x+w, y+h), (0,0,255), 2)
-        
+        cv2.rectangle(data, (x, y), (x+w, y+h), (0, 255,0), 2)
+        '''
+
         #Top action box
         (x,y,w,h) = tuple(self.top)
-        cv2.rectangle(data, (x, y), (x+w, y+h), (0,0,255), 2)
+        cv2.rectangle(data, (x, y), (x+w, y+h), (0, 255,0), 2)
 
         #Bottom action box
         (x,y,w,h) = tuple(self.btm)
-        cv2.rectangle(data, (x, y), (x+w, y+h), (0,0,255), 2)
+        cv2.rectangle(data, (x, y), (x+w, y+h), (0, 255,0), 2)
         
+        #Find AoEs
+        _, threshold = cv2.threshold(gray_img, 240, 255, cv2.THRESH_BINARY)
+        contours, _ = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+        for cnt in contours:
+            area = cv2.contourArea(cnt)
+            if 900 < area < 1000:
+                arc = cv2.arcLength(cnt, True)
+                approx = cv2.approxPolyDP(cnt, 0.03*arc, True)
+                if len(approx) == 6:
+                    cv2.drawContours(data, [approx], 0, (0, 255, 0), 2)
+                    s = arc/6
+                    h = 0.5*s*np.sqrt(3)
+                    m = cv2.moments(approx)
+                    cx = m['m10']/m['m00']
+                    cy = m['m01']/m['m00']
+                    print('x:{},y:{} - n:{},s:{} - h:{},A: {}'.format(cx, cy, len(approx), s, h, area))
+
         #Show Data
         #cv2.imwrite("data_circles.jpg", data)
         cv2.imshow("Enhancements", data)
         print(circles)
+
+    def find_AoE(self):
+        #resource locations
+        imgpath = 'ghclass\{}\img'.format(self.ghclass)
+        imgfile = '{}.{}'.format(self.card_index, self.fmt)
+
+        img = cv2.imread('{}\{}'.format(imgpath, imgfile))
+        gray = cv2.imread('{}\{}'.format(imgpath, imgfile), cv2.IMREAD_GRAYSCALE)
+        _, threshold = cv2.threshold(gray, 240, 255, cv2.THRESH_BINARY)
+        contours, _ = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+        for cnt in contours:
+            area = cv2.contourArea(cnt)
+            if area > 900:
+                approx = cv2.approxPolyDP(cnt, 0.03*cv2.arcLength(cnt, True), True)
+                cv2.drawContours(img, [approx], 0, (0, 255, 0), 2)
+                x = approx.ravel()[0]
+                y = approx.ravel()[1]
+                print('{},{} - {} - {}'.format(x, y, len(approx), area))
+                
+        cv2.imshow("Areas of Effect", img)
 
     def get_class_cards(self):
         #Class metadata
@@ -403,6 +445,12 @@ class App:
         fileurl = resourceurl + fileid
         response = urllib.request.urlopen(fileurl)
         self.data = response.read()
+        
+        #Save the pdf resource
+        pdfpath = 'ghclass\{}'.format(self.ghclass)
+        Path(pdfpath).mkdir(exist_ok=True,parents=False)
+        pdffile = '{}\{} Cards.pdf'.format(pdfpath, self.ghclass)
+        urllib.request.urlretrieve(fileurl, pdffile)   
         
         #Parse cards from pdf in background thread
         self.extract_thread = threading.Thread(target = self.extract_cards)
