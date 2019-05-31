@@ -104,6 +104,9 @@ class App:
         #Add viewer as new notebook page
         self.viewer = tk.Frame(self.nb)
         self.nb.add(self.viewer, text = 'Viewer')
+        self.viewer.bind('<Left>', lambda event: self.prev_card())
+        self.viewer.bind('<Right>', lambda event: self.next_card())
+        self.viewer.focus_set()
 
         #Stats frame
         self.stats_frame = tk.Frame(self.viewer)
@@ -122,18 +125,18 @@ class App:
         self.title_label.pack(side = tk.LEFT)
         self.title_entry = tk.Entry(self.title_frame)
         self.title_entry.bind('<Return>', lambda event: self.update_title())
-        self.title_entry.pack(side = tk.RIGHT)
+        #self.title_entry.pack(side = tk.RIGHT)
         self.initiative_frame = tk.Frame(self.stats_frame)
         self.initiative_frame.pack(anchor = tk.NW, fill = tk.X)
         self.initiative_label = tk.Label(self.initiative_frame, text = 'Initiative:')
         self.initiative_label.pack(side = tk.LEFT)
         self.initiative_entry = tk.Entry(self.initiative_frame)
         self.initiative_entry.bind('<Return>', lambda event: self.update_initiative())
-        self.initiative_entry.pack(side = tk.RIGHT)
+        #self.initiative_entry.pack(side = tk.RIGHT)
         self.index_label = tk.Label(self.stats_frame, text = 'Index:')
         self.index_label.pack(anchor = tk.NW)
         self.edit_frame = tk.Frame(self.stats_frame)
-        self.edit_frame.pack(anchor = tk.NW, fill = tk.X)
+        #self.edit_frame.pack(anchor = tk.NW, fill = tk.X)
         self.edit_card_button = tk.Button(self.edit_frame, text = 'Edit', command = lambda: self.edit_card())
         self.edit_card_button.pack(side = tk.LEFT)
         self.save_card_button = tk.Button(self.edit_frame, text = 'Save', command = lambda: self.save_card())
@@ -171,6 +174,7 @@ class App:
         self.minr_spin = tk.Spinbox(self.stats_frame, from_ = 0, to = 10, textvariable = minr)
         self.minr_spin.pack(anchor = tk.NW)
 
+        '''
         box = [256, 146, 300, 50]
         x = tk.IntVar(root)
         x.set(box[0])
@@ -199,6 +203,7 @@ class App:
         h_label.pack(anchor = tk. NW)
         self.h_spin = tk.Spinbox(self.stats_frame, from_ = 0, to = 500, textvariable = h)
         self.h_spin.pack(anchor = tk.NW)
+        '''
 
         #Viewer Frame
         self.viewer_frame = tk.Frame(self.viewer)
@@ -246,19 +251,27 @@ class App:
         self.handlimit_label.config(text = 'Hand Limit: {}'.format(self.hand_limit))
 
     def update_card(self):
-        self.cardimg.config(image = self.card)
-        self.cardlevel_label.config(text = 'Card Level: {}'.format(self.card_level))
         self.card_index = self.index + global_index[self.ghclass]
+        try:
+            with open('ghclass\{0}\data\{1:03d}.txt'.format(self.ghclass, self.card_index), 'r') as f:
+                s = f.read()
+                self.card_data = eval(s)
+        except FileNotFoundError:
+            pass
+
+        self.cardimg.config(image = self.card)
+        self.cardlevel_label.config(text = 'Card Level: {}'.format(self.card_data['level']))
         self.index_label.config(text = 'Index: {}'.format(self.card_index))
+        self.title_label.config(text = 'Title: {}'.format(self.card_data['title']))
+        self.initiative_label.config(text = 'Inititative: {}'.format(self.card_data['initiative']))
 
     def edit_card(self):
         self.card_data[self.card_index] = {'Title':'', 'Initiative':0, 'Enhancements':{}}
 
     def save_card(self):
-        f = open('ghclass\{}\cards.txt'.format(self.ghclass),"w")
+        f = open('ghclass\{}\data\{}.txt'.format(self.ghclass, self.card_index),"w")
         f.write(str(self.card_data[self.ghclass]))
         f.close()
-        print(self.card_data)
 
     def update_title(self):
         title = self.title_entry.get()
@@ -309,21 +322,33 @@ class App:
             #Update status bar when all class cards are loaded
             if len(self.cards) == self.num_cards:
                 self.status_label.config(text = '{}: ready'.format(self.classname))
-    
-        #Cache cards locally
-        #self.save_cards()
 
     def parse_cards(self):
-        #raw = parser.from_file(_)
-        #parse the contents of raw['content'] into a dictionary
-        pass
+        #data directory
+        datapath = 'ghclass\{}\data'.format(self.ghclass)
+        Path(datapath).mkdir(exist_ok=True,parents=True)
 
-    def save_cards(self):
-        for ndx, card in enumerate(self.cards):
-            card_index = ndx + global_index[self.ghclass]
-            fpath = 'ghclass\{}\img'.format(self.ghclass)
-            Path(fpath).mkdir(exist_ok=True,parents=False)
-            card.save('{}\{}.{}'.format(fpath, card_index, self.fmt))
+        #Get pdf
+        pdfpath = 'ghclass\{}'.format(self.ghclass)
+        pdffile = '{}\{} Cards.pdf'.format(pdfpath, self.ghclass)
+        
+        #Extract text
+        raw = parser.from_file(pdffile)
+        cards = raw['content'].split('{}\n'.format(names[self.ghclass]))
+        for card in cards[1:-1]:
+            #Identify summons
+            pass
+
+            #Parse card data
+            data = list(filter(None, card.split('\n\n')))
+            index = data[-1]
+            level, title = data[-2].split('\n')
+            initiative = data[-3].split(' ')[-1]
+            output = {'index': index, 'title': title, 'level': level, 'initiative': initiative}
+
+            #Save data
+            with open('{}\{}.txt'.format(datapath, index),"w") as f:
+                f.write(str(output))
     
     def find_enchancements(self):
         #resource locations
@@ -368,7 +393,6 @@ class App:
                 self.enchancements.append({'location': (cx,cy), 'action': 'TOP', 'type': ''})
             elif (xb < cx < xb+wb) and (yb < cy < yb+hb):
                 self.enchancements.append({'location': (cx,cy), 'action': 'BTM', 'type': ''})
-        print(self.enchancements)
 
         #Find AoEs
         _, threshold = cv2.threshold(gray_img, 240, 255, cv2.THRESH_BINARY)
@@ -387,7 +411,6 @@ class App:
                     cx = m['m10']/m['m00']
                     cy = m['m01']/m['m00']
                     self.hexes.append({'location': (cx, cy), 'length': s})
-        print(self.hexes)
 
         #Mark the enhancement
         for e in self.enchancements:
@@ -433,13 +456,6 @@ class App:
         self.hand_limit = hand_limits[self.ghclass]
         self.num_cards = self.hand_limit + 3 + 2*8
         self.index = 0
-        try:
-            with open('ghclass\{}\cards.txt'.format(self.ghclass), 'r') as f:
-                s = f.read()
-                self.card_data = eval(s)
-                print(self.card_data)
-        except FileNotFoundError:
-            pass
 
         #Class online card resources as pdf
         #Future: check for cached cards
@@ -454,7 +470,10 @@ class App:
         pdffile = '{}\{} Cards.pdf'.format(pdfpath, self.ghclass)
         urllib.request.urlretrieve(fileurl, pdffile)   
         
-        #Parse cards from pdf in background thread
+        #Parse card data
+        self.parse_cards()
+
+        #Parse card images from pdf in background thread
         self.extract_thread = threading.Thread(target = self.extract_cards)
         self.extract_thread.start()
 
