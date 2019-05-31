@@ -86,8 +86,9 @@ class App:
         self.thread_count = 16
         self.fmt = 'png'
         self.card_data = {}
-        self.top = [36, 80, 300, 160]
-        self.btm = [36, 315, 300, 135]
+        self.top = [190, 80, 150, 160]
+        self.btm = [190, 315, 150, 150]
+        self.hough = [30, 13, 4, 1]
 
         #Create a notebook
         self.nb = ttk.Notebook(self.main)
@@ -143,28 +144,28 @@ class App:
         self.enhancement_button.pack(anchor = tk.NW)
         
         p1 = tk.IntVar(root)
-        p1.set(30)
+        p1.set(self.hough[0])
         p1_label = tk.Label(self.stats_frame, text = 'P1')
         p1_label.pack(anchor = tk. NW)
         self.p1_spin = tk.Spinbox(self.stats_frame, from_ = 20, to = 40, textvariable = p1)
         self.p1_spin.pack(anchor = tk.NW)
 
         p2 = tk.IntVar(root)
-        p2.set(14)
+        p2.set(self.hough[1])
         p2_label = tk.Label(self.stats_frame, text = 'p2')
         p2_label.pack(anchor = tk. NW)
         self.p2_spin = tk.Spinbox(self.stats_frame, from_ = 5, to = 25, textvariable = p2)
         self.p2_spin.pack(anchor = tk.NW)
 
         maxr = tk.IntVar(root)
-        maxr.set(4)
+        maxr.set(self.hough[2])
         maxr_label = tk.Label(self.stats_frame, text = 'maxr')
         maxr_label.pack(anchor = tk. NW)
         self.maxr_spin = tk.Spinbox(self.stats_frame, from_ = 0, to = 10, textvariable = maxr)
         self.maxr_spin.pack(anchor = tk.NW)
 
         minr = tk.IntVar(root)
-        minr.set(0)
+        minr.set(self.hough[3])
         minr_label = tk.Label(self.stats_frame, text = 'minr')
         minr_label.pack(anchor = tk. NW)
         self.minr_spin = tk.Spinbox(self.stats_frame, from_ = 0, to = 10, textvariable = minr)
@@ -350,39 +351,29 @@ class App:
                                 maxRadius=  params['maxr'])
         circles = np.uint16(np.around(circles))
 
-        #Plot all circles + adjacent text box
-        x0 = 10
+        #Find enhancement locations
+        x0 = -10
         w = 180
         h = 30
+        self.enchancements = []
         for circ in circles[0,:]:
-            # draw the outer circle
-            cv2.circle(data,(circ[0],circ[1]),circ[2],(0, 255,0),2)
-            x = circ[0] - w + x0
-            y = circ[1] - h//2
-            cv2.rectangle(data, (x, y), (x+w, y+h), (0, 255,0), 2)
+            #Dot parameters
+            cx = circ[0]
+            cy = circ[1]
+            
+            #Check Top/Btm Actions
+            (xt,yt,wt,ht) = tuple(self.top)
+            (xb,yb,wb,hb) = tuple(self.btm)
+            if (xt < cx < xt+wt) and (yt < cy < yt+ht):
+                self.enchancements.append({'location': (cx,cy), 'action': 'TOP', 'type': ''})
+            elif (xb < cx < xb+wb) and (yb < cy < yb+hb):
+                self.enchancements.append({'location': (cx,cy), 'action': 'BTM', 'type': ''})
+        print(self.enchancements)
 
-        #Plot crop boxes
-        '''
-        #User-defined box
-        x = int(self.x_spin.get())
-        y = int(self.y_spin.get())
-        w = int(self.w_spin.get())
-        h = int(self.h_spin.get())
-        cv2.rectangle(data, (x, y), (x+w, y+h), (0, 255,0), 2)
-        '''
-
-        #Top action box
-        (x,y,w,h) = tuple(self.top)
-        cv2.rectangle(data, (x, y), (x+w, y+h), (0, 255,0), 2)
-
-        #Bottom action box
-        (x,y,w,h) = tuple(self.btm)
-        cv2.rectangle(data, (x, y), (x+w, y+h), (0, 255,0), 2)
-        
         #Find AoEs
         _, threshold = cv2.threshold(gray_img, 240, 255, cv2.THRESH_BINARY)
         contours, _ = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
+        self.hexes = []
         for cnt in contours:
             area = cv2.contourArea(cnt)
             if 900 < area < 1000:
@@ -395,33 +386,44 @@ class App:
                     m = cv2.moments(approx)
                     cx = m['m10']/m['m00']
                     cy = m['m01']/m['m00']
-                    print('x:{},y:{} - n:{},s:{} - h:{},A: {}'.format(cx, cy, len(approx), s, h, area))
+                    self.hexes.append({'location': (cx, cy), 'length': s})
+        print(self.hexes)
 
+        #Mark the enhancement
+        for e in self.enchancements:
+            if len(self.hexes) > 0:
+                for hex in self.hexes:
+                    d = self.distance(e['location'], hex['location'])
+                    if 35 < d < 37:
+                        e['type'] = 'hex'
+                        cv2.circle(data,e['location'],3,(255,0,0),2)
+                        break
+                else:
+                    cv2.circle(data,e['location'],3,(0,255,0),2)
+            else:
+                cv2.circle(data,e['location'],3,(0,255,0),2)
+
+        '''
+        #Mark the enchancement
+        #Box the adjacent text
+        if not FP:
+            cv2.circle(data,(cx,cy),r,color,2)
+            x = cx - w + x0
+            y = cy - h//2
+            cv2.rectangle(data, (x, y), (x+w, y+h), color, 1)
+        '''
+        
         #Show Data
-        #cv2.imwrite("data_circles.jpg", data)
         cv2.imshow("Enhancements", data)
-        print(circles)
 
-    def find_AoE(self):
-        #resource locations
-        imgpath = 'ghclass\{}\img'.format(self.ghclass)
-        imgfile = '{}.{}'.format(self.card_index, self.fmt)
-
-        img = cv2.imread('{}\{}'.format(imgpath, imgfile))
-        gray = cv2.imread('{}\{}'.format(imgpath, imgfile), cv2.IMREAD_GRAYSCALE)
-        _, threshold = cv2.threshold(gray, 240, 255, cv2.THRESH_BINARY)
-        contours, _ = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
-        for cnt in contours:
-            area = cv2.contourArea(cnt)
-            if area > 900:
-                approx = cv2.approxPolyDP(cnt, 0.03*cv2.arcLength(cnt, True), True)
-                cv2.drawContours(img, [approx], 0, (0, 255, 0), 2)
-                x = approx.ravel()[0]
-                y = approx.ravel()[1]
-                print('{},{} - {} - {}'.format(x, y, len(approx), area))
-                
-        cv2.imshow("Areas of Effect", img)
+    def distance(self, p1: tuple, p2: tuple):
+        sum = 0
+        if len(p1) != len(p2):
+            return None
+        else:
+            for (a, b) in zip(p1, p2):
+                sum += (b - a)**2
+        return np.sqrt(sum)
 
     def get_class_cards(self):
         #Class metadata
