@@ -16,8 +16,13 @@ import time
 from tika import parser
 import cv2
 import numpy as np
+import os
+import pytesseract
 
+#tesseract binaries
+pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
 
+#GH Class data
 resourceurl = 'https://drive.google.com/uc?export=download&id='
 
 resources = {'BR':'0B8ppELln5Z0rdjJzSGZMYXNqVkE',
@@ -364,6 +369,7 @@ class App:
         data = cv2.imread('{}\{}'.format(imgpath, imgfile))
         gray_img = cv2.cvtColor(data, cv2.COLOR_BGR2GRAY)
         img = cv2.medianBlur(gray_img, 5)
+        print(img.shape)
 
         #Detection parameters
         #params = {'mdist': 10, 'p1': 30, 'p2': 14, 'minr': 0, 'maxr':4}
@@ -382,9 +388,6 @@ class App:
         circles = np.uint16(np.around(circles))
 
         #Find enhancement locations
-        x0 = -10
-        w = 180
-        h = 30
         self.enhancements = []
         for circ in circles[0,:]:
             #Dot parameters
@@ -427,19 +430,38 @@ class App:
                         cv2.circle(data,e['location'],3,(255,0,0),2)
                         break
                 else:
+                    e['type'] = 'ability'
                     cv2.circle(data,e['location'],3,(0,255,0),2)
             else:
+                e['type'] = 'ability'
                 cv2.circle(data,e['location'],3,(0,255,0),2)
 
-        '''
-        #Mark the enhancement
-        #Box the adjacent text
-        if not FP:
-            cv2.circle(data,(cx,cy),r,color,2)
-            x = cx - w + x0
-            y = cy - h//2
-            cv2.rectangle(data, (x, y), (x+w, y+h), color, 1)
-        '''
+        #OCR ability text
+        # ROI
+        x0 = 170
+        w = 116
+        h = 35
+        Path('ghclass\\tmp').mkdir(exist_ok=True,parents=True)
+
+        for e in self.enhancements:
+            if e['type'] == 'ability':
+                #region of interest
+                (cx, cy) = e['location']
+                x = cx - x0
+                y = cy - h//2
+                roi = data[y:y+h, x:x+w]
+                
+                # Grayscale
+                gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+                
+                # Threshold
+                thres = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+                
+                # OCR white text
+                text1 = self.ability_ocr(thres, False)
+                text2 = self.ability_ocr(thres, True)
+                print('{}, {}'.format(text1, text2))
+
         '''
         #Save data
         #data directory
@@ -454,6 +476,29 @@ class App:
         cv2.imshow("Enhancements", data)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
+
+    def ability_ocr(self, data, invert = False, dx=30, dy=12):
+        (h, w) = data.shape[:2]
+        if invert:
+            data = cv2.bitwise_not(data)
+            pad = np.concatenate((np.ones((dy, w)), data), axis=0) #top pad
+            pad = np.concatenate((pad, np.ones((dy, w))), axis=0) #btm pad
+            pad = np.concatenate((pad, np.ones((dy+h+dy, dx))), axis=1) #right pad
+        else:
+            pad = np.concatenate((np.zeros((dy, w)), data), axis=0) #top pad
+            pad = np.concatenate((pad, np.zeros((dy, w))), axis=0) #btm pad
+            pad = np.concatenate((pad, np.zeros((dy+h+dy, dx))), axis=1) #right pad
+
+        # Save preprocessed image
+        tmpfile = "ghclass\\tmp\{}.png".format(os.getpid())
+        cv2.imwrite(tmpfile, pad)
+
+        # load, parse, then delete preprocessed image
+        text = pytesseract.image_to_string(Image.open(tmpfile))
+        os.remove(tmpfile)
+        #cv2.imshow('ROI', pad)
+        #cv2.waitKey(0)
+        return text
 
     def distance(self, p1: tuple, p2: tuple):
         sum = 0
@@ -475,10 +520,12 @@ class App:
 
         #Retrieve class card images
         try:
+            raise NotImplementedError
             #open image directory
             pass
         except:
             try:
+                raise NotImplementedError
                 #open pdf file
                 pass
             except:
@@ -501,6 +548,7 @@ class App:
         
         #Retrieve class card data
         try:
+            raise NotImplementedError
             #open data directory
             pass
         except:

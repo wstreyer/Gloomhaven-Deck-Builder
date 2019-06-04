@@ -15,32 +15,24 @@ image = cv2.imread(imgfile)
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
  
 # Thresholding
-gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+thres = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
  
 # Blur
-gray = cv2.medianBlur(gray, 3)
- 
+blur = cv2.medianBlur(thres, 3)
+
 # Region of interest
-top = [190, 80, 150, 160]
-btm = [190, 315, 150, 150]
-action = 'btm'
-
-
-if action == 'top':
-    (x,y,w,h) = tuple(top)
-elif action == 'btm':
-    (x,y,w,h) = tuple(btm)
-else:
-    pass
-gray = gray[x:x+w, y:y+h]
+H,W = blur.shape[:2]
+print('H: {}, W:{}'.format(H, W))
+(x,y,w,h) = (80, 130, 180, 30)
+roi = blur[y:y+h, x:x+w]
 
 # Save preprocessed image
 tmpfile = "{}.png".format(os.getpid())
-cv2.imwrite(tmpfile, gray)
+cv2.imwrite(tmpfile, roi)
 
 # Show original and preprocessed images
-cv2.imshow("Image", image)
-cv2.imshow("Output", gray)
+#cv2.imshow("Image", image)
+cv2.imshow("Output", roi)
 #cv2.waitKey(0)
 
 # load, parse, then delete preprocessed image
