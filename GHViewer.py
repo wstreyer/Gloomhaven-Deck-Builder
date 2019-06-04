@@ -86,9 +86,9 @@ class App:
         self.thread_count = 16
         self.fmt = 'png'
         self.card_data = {}
-        self.top = [190, 80, 150, 160]
-        self.btm = [190, 315, 150, 150]
-        self.hough = [30, 13, 4, 1]
+        self.top = [180, 80, 150, 160]
+        self.btm = [180, 315, 150, 150]
+        self.hough = [30, 12, 4, 0]
 
         #Create a notebook
         self.nb = ttk.Notebook(self.main)
@@ -106,6 +106,8 @@ class App:
         self.nb.add(self.viewer, text = 'Viewer')
         self.viewer.bind('<Left>', lambda event: self.prev_card())
         self.viewer.bind('<Right>', lambda event: self.next_card())
+        self.viewer.bind('<s>', lambda event: self.find_enhancements())
+        self.viewer.bind('<f>', lambda event: self.find_enhancements())
         self.viewer.focus_set()
 
         #Stats frame
@@ -141,10 +143,14 @@ class App:
         self.edit_card_button.pack(side = tk.LEFT)
         self.save_card_button = tk.Button(self.edit_frame, text = 'Save', command = lambda: self.save_card())
         self.save_card_button.pack(side = tk.LEFT)
-        self.enchancement_label = tk.Label(self.stats_frame, text = 'Enhancements')
-        self.enchancement_label.pack(anchor = tk.NW)
-        self.enhancement_button = tk.Button(self.stats_frame, text = 'Show', command = lambda: self.find_enchancements())
-        self.enhancement_button.pack(anchor = tk.NW)
+        self.enhancement_label = tk.Label(self.stats_frame, text = 'Enhancements')
+        self.enhancement_label.pack(anchor = tk.NW)
+        self.enhancement_frame = tk.Frame(self.stats_frame)
+        self.enhancement_frame.pack(anchor = tk.NW)
+        self.show_enhancement_button = tk.Button(self.enhancement_frame, text = 'Show', command = lambda: self.find_enhancements())
+        self.show_enhancement_button.pack(side = tk.LEFT, anchor = tk.NW)
+        self.find_enhancement_button = tk.Button(self.enhancement_frame, text = 'Find', command = lambda: self.find_enhancements())
+        self.find_enhancement_button.pack(side = tk.LEFT, anchor = tk.NW)
         
         p1 = tk.IntVar(root)
         p1.set(self.hough[0])
@@ -269,9 +275,8 @@ class App:
         self.card_data[self.card_index] = {'Title':'', 'Initiative':0, 'Enhancements':{}}
 
     def save_card(self):
-        f = open('ghclass\{}\data\{}.txt'.format(self.ghclass, self.card_index),"w")
-        f.write(str(self.card_data[self.ghclass]))
-        f.close()
+        with open('ghclass\{}\data\{}.txt'.format(self.ghclass, self.card_index),"w") as f: 
+            f.write(str(self.card_data[self.ghclass]))
 
     def update_title(self):
         title = self.title_entry.get()
@@ -344,13 +349,13 @@ class App:
             index = data[-1]
             level, title = data[-2].split('\n')
             initiative = data[-3].split(' ')[-1]
-            output = {'index': index, 'title': title, 'level': level, 'initiative': initiative}
+            output = {'index': index, 'title': title, 'level': level, 'initiative': initiative, 'content': cards[1:-4]}
 
             #Save data
             with open('{}\{}.txt'.format(datapath, index),"w") as f:
                 f.write(str(output))
     
-    def find_enchancements(self):
+    def find_enhancements(self):
         #resource locations
         imgpath = 'ghclass\{}\img'.format(self.ghclass)
         imgfile = '{}.{}'.format(self.card_index, self.fmt)
@@ -380,7 +385,7 @@ class App:
         x0 = -10
         w = 180
         h = 30
-        self.enchancements = []
+        self.enhancements = []
         for circ in circles[0,:]:
             #Dot parameters
             cx = circ[0]
@@ -390,9 +395,9 @@ class App:
             (xt,yt,wt,ht) = tuple(self.top)
             (xb,yb,wb,hb) = tuple(self.btm)
             if (xt < cx < xt+wt) and (yt < cy < yt+ht):
-                self.enchancements.append({'location': (cx,cy), 'action': 'TOP', 'type': ''})
+                self.enhancements.append({'location': (cx,cy), 'action': 'TOP', 'type': ''})
             elif (xb < cx < xb+wb) and (yb < cy < yb+hb):
-                self.enchancements.append({'location': (cx,cy), 'action': 'BTM', 'type': ''})
+                self.enhancements.append({'location': (cx,cy), 'action': 'BTM', 'type': ''})
 
         #Find AoEs
         _, threshold = cv2.threshold(gray_img, 240, 255, cv2.THRESH_BINARY)
@@ -413,11 +418,11 @@ class App:
                     self.hexes.append({'location': (cx, cy), 'length': s})
 
         #Mark the enhancement
-        for e in self.enchancements:
+        for e in self.enhancements:
             if len(self.hexes) > 0:
                 for hex in self.hexes:
                     d = self.distance(e['location'], hex['location'])
-                    if 35 < d < 37:
+                    if 34 < d < 40:
                         e['type'] = 'hex'
                         cv2.circle(data,e['location'],3,(255,0,0),2)
                         break
@@ -427,7 +432,7 @@ class App:
                 cv2.circle(data,e['location'],3,(0,255,0),2)
 
         '''
-        #Mark the enchancement
+        #Mark the enhancement
         #Box the adjacent text
         if not FP:
             cv2.circle(data,(cx,cy),r,color,2)
@@ -435,9 +440,20 @@ class App:
             y = cy - h//2
             cv2.rectangle(data, (x, y), (x+w, y+h), color, 1)
         '''
-        
+        '''
+        #Save data
+        #data directory
+        datapath = 'ghclass\{}\data'.format(self.ghclass)
+        Path(datapath).mkdir(exist_ok=True,parents=True)
+
+        with open('{}\{}.txt'.format(datapath, index),"w") as f:
+                f.write(str(output))
+        '''
+
         #Show Data
         cv2.imshow("Enhancements", data)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
     def distance(self, p1: tuple, p2: tuple):
         sum = 0
@@ -457,25 +473,39 @@ class App:
         self.num_cards = self.hand_limit + 3 + 2*8
         self.index = 0
 
-        #Class online card resources as pdf
-        #Future: check for cached cards
-        fileid = resources[self.ghclass]
-        fileurl = resourceurl + fileid
-        response = urllib.request.urlopen(fileurl)
-        self.data = response.read()
+        #Retrieve class card images
+        try:
+            #open image directory
+            pass
+        except:
+            try:
+                #open pdf file
+                pass
+            except:
+                #Class online card resources as pdf
+                #Future: check for cached cards
+                fileid = resources[self.ghclass]
+                fileurl = resourceurl + fileid
+                response = urllib.request.urlopen(fileurl)
+                self.data = response.read()
+                
+                #Save the pdf resource
+                pdfpath = 'ghclass\{}'.format(self.ghclass)
+                Path(pdfpath).mkdir(exist_ok=True,parents=False)
+                pdffile = '{}\{} Cards.pdf'.format(pdfpath, self.ghclass)
+                urllib.request.urlretrieve(fileurl, pdffile)   
+            
+            #Parse card images from pdf in background thread
+            self.extract_thread = threading.Thread(target = self.extract_cards)
+            self.extract_thread.start()
         
-        #Save the pdf resource
-        pdfpath = 'ghclass\{}'.format(self.ghclass)
-        Path(pdfpath).mkdir(exist_ok=True,parents=False)
-        pdffile = '{}\{} Cards.pdf'.format(pdfpath, self.ghclass)
-        urllib.request.urlretrieve(fileurl, pdffile)   
-        
-        #Parse card data
-        self.parse_cards()
-
-        #Parse card images from pdf in background thread
-        self.extract_thread = threading.Thread(target = self.extract_cards)
-        self.extract_thread.start()
+        #Retrieve class card data
+        try:
+            #open data directory
+            pass
+        except:
+            #Parse card data
+            self.parse_cards()
 
     def get_card(self, index = 0):
         while len(self.cards) <= index:
