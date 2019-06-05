@@ -18,6 +18,7 @@ import cv2
 import numpy as np
 import os
 import pytesseract
+import pickle
 
 #tesseract binaries
 pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
@@ -280,6 +281,11 @@ class App:
         self.card_data[self.card_index] = {'Title':'', 'Initiative':0, 'Enhancements':{}}
 
     def save_card(self):
+        #pickled file
+        with open('ghclass\{}\data\{}.dat'.format(self.ghclass, self.card_index),"wb") as f: 
+            pickle.dump(self.card_data[self.ghclass], f)
+        
+        #readable text file
         with open('ghclass\{}\data\{}.txt'.format(self.ghclass, self.card_index),"w") as f: 
             f.write(str(self.card_data[self.ghclass]))
 
@@ -357,6 +363,11 @@ class App:
             output = {'index': index, 'title': title, 'level': level, 'initiative': initiative, 'content': cards[1:-4]}
 
             #Save data
+            #pickle
+            with open('{}\{}.dat'.format(datapath, index),"wb") as f:
+                pickle.dump(output, f)
+            
+            #readable text file
             with open('{}\{}.txt'.format(datapath, index),"w") as f:
                 f.write(str(output))
     
@@ -468,8 +479,13 @@ class App:
         datapath = 'ghclass\{}\data'.format(self.ghclass)
         Path(datapath).mkdir(exist_ok=True,parents=True)
 
+        #pickle        
+        with open('{}\{}.dat'.format(datapath, index),"w") as f:
+            pickle.dump(output, f)
+
+        #readable text file
         with open('{}\{}.txt'.format(datapath, index),"w") as f:
-                f.write(str(output))
+            f.write(str(output))
         '''
 
         #Show Data
@@ -496,7 +512,7 @@ class App:
         # load, parse, then delete preprocessed image
         text = pytesseract.image_to_string(Image.open(tmpfile))
         os.remove(tmpfile)
-        #cv2.imshow('ROI', pad)
+        cv2.imshow('ROI', pad)
         #cv2.waitKey(0)
         return text
 
@@ -570,7 +586,6 @@ class App:
         else:
             self.card_level = str(int((self.index - self.hand_limit - 3)/2)+2)
     
-
 root = tk.Tk()
 GUI = App(root)
 root.mainloop()
