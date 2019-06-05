@@ -265,9 +265,8 @@ class App:
     def update_card(self):
         self.card_index = self.index + global_index[self.ghclass]
         try:
-            with open('ghclass\{0}\data\{1:03d}.txt'.format(self.ghclass, self.card_index), 'r') as f:
-                s = f.read()
-                self.card_data = eval(s)
+            with open('ghclass\{0}\data\{1:03d}.dat'.format(self.ghclass, self.card_index), 'rb') as f:
+                self.card_data = pickle.load(f)
         except FileNotFoundError:
             pass
 
@@ -311,7 +310,7 @@ class App:
             self.get_card(self.index)
             self.update_card()
 
-    def extract_cards(self):
+    def extract_cards(self, data=None, pdffile=''):
         #Parse pdf to get list of image objects
         #pdf contains card fronts and backs. Backs are skipped to same time.
         self.cards = []
@@ -321,11 +320,22 @@ class App:
                 self.status_label.config(text = '{}: loading card {}/{}'.format(self.classname, ndx//2 + 1, self.num_cards))
             
             #Extract image
-            card = pdf2image.convert_from_bytes(self.data, dpi = self.dpi,
-                                                      thread_count=self.thread_count,
-                                                      first_page=ndx,
-                                                      last_page=ndx,
-                                                      fmt=self.fmt)
+            if data:
+                card = pdf2image.convert_from_bytes(data, dpi = self.dpi,
+                                                    thread_count=self.thread_count,
+                                                    first_page=ndx,
+                                                    last_page=ndx,
+                                                    fmt=self.fmt)
+            elif file:
+                card = pdf2image.convert_from_bytes(pdffile, dpi = self.dpi,
+                                                    thread_count=self.thread_count,
+                                                    first_page=ndx,
+                                                    last_page=ndx,
+                                                    fmt=self.fmt)
+            else:
+                raise ValueError
+                return
+            
             #Add to list of cards for class
             self.cards.append(card[0])
             
@@ -534,34 +544,39 @@ class App:
         self.num_cards = self.hand_limit + 3 + 2*8
         self.index = 0
 
+         #resource locations
+        imgpath = 'ghclass\{}\img'.format(self.ghclass)
+        datapath = ''
+        pdffile = 'ghclass\{0}\{0} Cards.pdf'.format(self.ghclass)
+
         #Retrieve class card images
-        try:
-            raise NotImplementedError
-            #open image directory
-            pass
-        except:
-            try:
-                raise NotImplementedError
-                #open pdf file
-                pass
-            except:
+        if Path(imgpath).exists():
+            self.cards = []
+            for i in range(0, self.num_cards):
+                imgfile = '{}.{}'.format(i+1, self.fmt)
+                img = Image.open('{}\{}'.format(imgpath, imgfile))
+                self.cards.append(img)
+        else:
+            if os.path.exists(pdffile):
+                #load pdf data from file
+                self.extract_thread = threading.Thread(target = self.extract_cards(pdffile=pdffile))
+            else:
+                #load pdf data from url
                 #Class online card resources as pdf
-                #Future: check for cached cards
                 fileid = resources[self.ghclass]
                 fileurl = resourceurl + fileid
                 response = urllib.request.urlopen(fileurl)
-                self.data = response.read()
+                data = response.read()
+                self.extract_thread = threading.Thread(target = self.extract_cards(data = data))
                 
                 #Save the pdf resource
                 pdfpath = 'ghclass\{}'.format(self.ghclass)
                 Path(pdfpath).mkdir(exist_ok=True,parents=False)
-                pdffile = '{}\{} Cards.pdf'.format(pdfpath, self.ghclass)
-                urllib.request.urlretrieve(fileurl, pdffile)   
+                urllib.request.urlretrieve(fileurl, pdffile)
             
             #Parse card images from pdf in background thread
-            self.extract_thread = threading.Thread(target = self.extract_cards)
             self.extract_thread.start()
-        
+
         #Retrieve class card data
         try:
             raise NotImplementedError
