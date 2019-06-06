@@ -4,13 +4,13 @@ import cv2
 import numpy as np 
 
 #resources
-imgpath = 'C:\\Users\\InnSight\\Documents\\Github\\Gloomhaven-Deck-Builder\\ghclass\\TI\\img\\52.png'
+imgpath = 'C:\\Users\\InnSight\\Documents\\Github\\Gloomhaven-Deck-Builder\\ghclass\\CH\\img\\156.png'
 iconpath = 'C:\\Users\\InnSight\\Documents\\Github\\Gloomhaven-Deck-Builder\\icons'
 
 # Specify a threshold 
 threshold = 0.8
 
-icon = 'disarm'
+icon = 'pull-1'
   
 # Read the main image 
 img_rgb = cv2.imread(imgpath)
@@ -19,7 +19,7 @@ img_rgb = cv2.imread(imgpath)
 img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY) 
   
 # Read the template
-(x,y,w,h) = (219, 388, 28, 28)
+(x,y,w,h) = (190, 110, 27, 27)
 template = img_gray[y:y+h,x:x+w]    
   
 # Perform match operations. 
