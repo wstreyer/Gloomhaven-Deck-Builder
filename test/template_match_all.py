@@ -12,9 +12,47 @@ def distance(p1: tuple, p2: tuple):
         for (a, b) in zip(p1, p2):
             sum += (b - a)**2
     return np.sqrt(sum)
+
+#Load image
+def find_enchancements():
+    img = cv2.medianBlur(img_gray, 5)
+
+    #Detection parameters
+    (p1, p2, minr, maxr) = (30, 12, 0, 4)
+    params = {'mdist': 10, 
+            'p1': p1, 
+            'p2': p2, 
+            'minr': minr, 
+            'maxr': maxr}
+
+    circles = cv2.HoughCircles(img,cv2.HOUGH_GRADIENT,1,
+                            params['mdist'],
+                            param1 = params['p1'],
+                            param2 = params['p2'],
+                            minRadius = params['minr'],
+                            maxRadius=  params['maxr'])
+    circles = np.uint16(np.around(circles))
+
+    #Find enhancement locations
+    top = [180, 80, 150, 160]
+    btm = [180, 315, 150, 150]
+    for circ in circles[0,:]:
+        #Dot parameters
+        cx = circ[0]
+        cy = circ[1]
+        
+        #Check Top/Btm Actions
+        (xt,yt,wt,ht) = tuple(top)
+        (xb,yb,wb,hb) = tuple(btm)
+        if (xt < cx < xt+wt) and (yt < cy < yt+ht):
+            cv2.circle(img_rgb,(cx,cy),3,(0,255,0),2)
+        elif (xb < cx < xb+wb) and (yb < cy < yb+hb):
+            cv2.circle(img_rgb,(cx,cy),3,(0,255,0),2)
+        else:
+            pass
     
 #resources
-imgpath = 'C:\\Users\\InnSight\\Documents\\Github\\Gloomhaven-Deck-Builder\\ghclass\\TI\\img\\51.png'
+imgpath = 'C:\\Users\\InnSight\\Documents\\Github\\Gloomhaven-Deck-Builder\\ghclass\\CH\\img\\155.png'
 iconpath = 'C:\\Users\\InnSight\\Documents\\Github\\Gloomhaven-Deck-Builder\\icons'
 
 # Specify a threshold 
@@ -62,6 +100,9 @@ for icon in os.listdir(iconpath):
             print('{}: {} - {}'.format(icon.split('.')[0], res[(y,x)], (x,y)))
             cv2.rectangle(img_rgb, (x,y), (x+w, y+h), (0,255,255), 2)
         prev = (x,y)
+
+#Look for enhancements
+find_enchancements()
   
 # Show the final image with the matched area
 cv2.imshow('Detected', img_rgb)
