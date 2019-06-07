@@ -5,8 +5,8 @@ import numpy as np
 import os
 
 #resources
-ghclass = 'CH'
-index = 170
+ghclass = 'MT'
+index = 137
 pcwd = os.path.dirname(os.getcwd())
 imgpath = '{}\\ghclass\\{}\\img\\{}.png'.format(pcwd, ghclass, index)
 iconpath = '{}\\icons'.format(pcwd)
@@ -14,7 +14,7 @@ iconpath = '{}\\icons'.format(pcwd)
 # Specify a threshold 
 threshold = 0.8
 
-icon = 'push-2'
+icon = 'poison'
   
 # Read the main image 
 img_rgb = cv2.imread(imgpath)
@@ -23,7 +23,7 @@ img_rgb = cv2.imread(imgpath)
 img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY) 
   
 # Read the template
-(x,y,w,h) = (191, 124, 25, 25)
+(x,y,w,h) = (204, 130, 28, 28)
 template = img_gray[y:y+h,x:x+w]    
   
 # Perform match operations. 
