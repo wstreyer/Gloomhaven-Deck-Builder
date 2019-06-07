@@ -17,11 +17,7 @@ from tika import parser
 import cv2
 import numpy as np
 import os
-import pytesseract
 import pickle
-
-#tesseract binaries
-pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
 
 #GH Class data
 resourceurl = 'https://drive.google.com/uc?export=download&id='
@@ -77,6 +73,83 @@ code_names = {'BR':'Brute',
 code_names_inv = {v: k for k, v in code_names.items()}
 
 classes = code_names.values()
+
+#Calculate distance between two points
+def distance(p1: tuple, p2: tuple):
+        sum = 0
+        if len(p1) != len(p2):
+            return None
+        else:
+            for (a, b) in zip(p1, p2):
+                sum += (b - a)**2
+        return np.sqrt(sum)
+
+def find_circles(data, summon = 'none', params = (30, 12, 1, 4), mdist = 10):
+    #Get parameter
+    
+    
+    gray_img = cv2.cvtColor(data, cv2.COLOR_BGR2GRAY)
+    img = cv2.medianBlur(gray_img, 5)
+
+    #Find circles for possible enhancement locations
+    (p1, p2, minr, maxr) = params
+    circles = cv2.HoughCircles(img,cv2.HOUGH_GRADIENT,1, mdist, p1, p2, minr, maxr)
+    circles = np.uint16(np.around(circles))
+
+    #Set action bounding boxes
+    if summon == 'top':
+        (xt,yt,wt,ht) = (35, 75, 300, 165)
+        (xb,yb,wb,hb) = (180, 310, 150, 155)
+    elif summon == 'btm':
+        (xt,yt,wt,ht) = (180, 75, 150, 165)
+        (xb,yb,wb,hb) = (35, 310, 300, 155)
+    else:
+       (xt,yt,wt,ht) = (180, 75, 150, 165)
+       (xb,yb,wb,hb) = (180, 310, 150, 155)
+    
+    #Show bounding box
+    cv2.rectangle(data, (xt,yt), (xt+wt, yt+ht), (0,255,255), 2)
+    cv2.rectangle(data, (xb,yb), (xb+wb, yb+hb), (0,255,255), 2)
+    
+    #Filter enhancement locations
+    enhancements = []
+    for circ in circles[0,:]:
+        #Dot parameters
+        cx = circ[0]
+        cy = circ[1]
+        
+        #Check Top/Btm Actions
+        if (xt < cx < xt+wt) and (yt < cy < yt+ht):
+            #cv2.circle(img_rgb,(cx,cy),3,(0,255,0),2)
+            enhancements.append({'xy': (cx,cy), 'action': 'top', 'type':''})
+        elif (xb < cx < xb+wb) and (yb < cy < yb+hb):
+            #cv2.circle(img_rgb,(cx,cy),3,(0,255,0),2)
+            enhancements.append({'xy': (cx,cy), 'action': 'btm', 'type':''})
+        else:
+            pass
+
+    return enhancements
+
+#Find Hexagons
+def find_hexagon(data):
+    gray_img = cv2.cvtColor(data, cv2.COLOR_BGR2GRAY)
+    _, threshold = cv2.threshold(gray_img, 240, 255, cv2.THRESH_BINARY)
+    contours, _ = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    hexes = []
+    for cnt in contours:
+        area = cv2.contourArea(cnt)
+        if 900 < area < 1000:
+            arc = cv2.arcLength(cnt, True)
+            approx = cv2.approxPolyDP(cnt, 0.03*arc, True)
+            if len(approx) == 6:
+                cv2.drawContours(data, [approx], 0, (0, 255, 0), 2)
+                s = arc/6
+                h = 0.5*s*np.sqrt(3)
+                m = cv2.moments(approx)
+                cx = m['m10']/m['m00']
+                cy = m['m01']/m['m00']
+                hexes.append({'location': (cx, cy), 'length': s})
+    return hexes
 
 class App:
     def __init__(self, master):
@@ -388,100 +461,68 @@ class App:
 
         #Load image
         data = cv2.imread('{}\{}'.format(imgpath, imgfile))
-        gray_img = cv2.cvtColor(data, cv2.COLOR_BGR2GRAY)
-        img = cv2.medianBlur(gray_img, 5)
-        print(img.shape)
+        
+        #Find ability icons
+        #icons = find_icons()
+        #set value of summon
 
-        #Detection parameters
-        #params = {'mdist': 10, 'p1': 30, 'p2': 14, 'minr': 0, 'maxr':4}
-        params = {'mdist': 10, 
-                'p1': int(self.p1_spin.get()), 
-                'p2': int(self.p2_spin.get()), 
-                'minr': int(self.minr_spin.get()), 
-                'maxr': int(self.maxr_spin.get())}
+        #find circles
+        circles = find_circles(data)
 
-        circles = cv2.HoughCircles(img,cv2.HOUGH_GRADIENT,1,
-                                params['mdist'],
-                                param1 = params['p1'],
-                                param2 = params['p2'],
-                                minRadius = params['minr'],
-                                maxRadius=  params['maxr'])
-        circles = np.uint16(np.around(circles))
+        #call find_AoE()
+        hexes = find_hexagon(data)
 
-        #Find enhancement locations
-        self.enhancements = []
-        for circ in circles[0,:]:
-            #Dot parameters
-            cx = circ[0]
-            cy = circ[1]
-            
-            #Check Top/Btm Actions
-            (xt,yt,wt,ht) = tuple(self.top)
-            (xb,yb,wb,hb) = tuple(self.btm)
-            if (xt < cx < xt+wt) and (yt < cy < yt+ht):
-                self.enhancements.append({'location': (cx,cy), 'action': 'TOP', 'type': ''})
-            elif (xb < cx < xb+wb) and (yb < cy < yb+hb):
-                self.enhancements.append({'location': (cx,cy), 'action': 'BTM', 'type': ''})
-
-        #Find AoEs
-        _, threshold = cv2.threshold(gray_img, 240, 255, cv2.THRESH_BINARY)
-        contours, _ = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        self.hexes = []
-        for cnt in contours:
-            area = cv2.contourArea(cnt)
-            if 900 < area < 1000:
-                arc = cv2.arcLength(cnt, True)
-                approx = cv2.approxPolyDP(cnt, 0.03*arc, True)
-                if len(approx) == 6:
-                    cv2.drawContours(data, [approx], 0, (0, 255, 0), 2)
-                    s = arc/6
-                    h = 0.5*s*np.sqrt(3)
-                    m = cv2.moments(approx)
-                    cx = m['m10']/m['m00']
-                    cy = m['m01']/m['m00']
-                    self.hexes.append({'location': (cx, cy), 'length': s})
-
-        #Mark the enhancement
-        for e in self.enhancements:
-            if len(self.hexes) > 0:
-                for hex in self.hexes:
-                    d = self.distance(e['location'], hex['location'])
+        #Find possible enhancment locations
+        enhancements = find_circles(data, circles, summon = summon)
+        
+        #Find attack hex enhancements
+        for e in enhancements:
+            if len(hexes) > 0:
+                for hex in hexes:
+                    d = distance(e['xy'], hex['xy'])
                     if 34 < d < 40:
                         e['type'] = 'hex'
-                        cv2.circle(data,e['location'],3,(255,0,0),2)
+                        cv2.circle(img_rgb,e['xy'],3,(255,0,0),2)
                         break
                 else:
                     e['type'] = 'ability'
-                    cv2.circle(data,e['location'],3,(0,255,0),2)
+                    #cv2.circle(img_rgb,e['xy'],3,(0,255,0),2)
             else:
                 e['type'] = 'ability'
-                cv2.circle(data,e['location'],3,(0,255,0),2)
+                #cv2.circle(img_rgb,e['xy'],3,(0,255,0),2)
 
-        #OCR ability text
-        # ROI
-        x0 = 170
-        w = 116
-        h = 35
-        Path('ghclass\\tmp').mkdir(exist_ok=True,parents=True)
-
-        for e in self.enhancements:
+        
+        
+        #Match icons with ability enhancements
+        for e in enhancements:
             if e['type'] == 'ability':
-                #region of interest
-                (cx, cy) = e['location']
-                x = cx - x0
-                y = cy - h//2
-                roi = data[y:y+h, x:x+w]
-                
-                # Grayscale
-                gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
-                
-                # Threshold
-                thres = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-                
-                # OCR white text
-                text1 = self.ability_ocr(thres, False)
-                text2 = self.ability_ocr(thres, True)
-                print('{}, {}'.format(text1, text2))
+                for i in icons:
+                    dx = np.abs(e['xy'][0] - i['xy'][0])
+                    dy = np.abs(e['xy'][1] - i['xy'][1])
+                    print('({}, {})'.format(dx, dy))
+                    
+                    xmax = 60 if i['action'] == summon else 90
+                    if 37 <= dx <= xmax and dy <= 17:
+                        if i['type'] == 'heal' and i['action'] == summon:
+                            e['type'] = 'health' if i['action'] == summon else i['type']
+                        else:
+                            e['type'] = i['type']
+                        print(e)
+                        cv2.circle(img_rgb,e['xy'],3,(0,255,0),2)
+                        x = i['xy'][0]
+                        y = i['xy'][1]
+                        w = i['size'][0]
+                        h = i['size'][1]
+                        cv2.rectangle(img_rgb, (x,y), (x+w, y+h), (0,255,0), 2)
+                        break
+                else:
+                    e['type'] = 'remove'
+                    print(e)
+            else:
+                print(e)
+
+        #Remove false enhancements
+        enhancements = [e for e in enhancements if not (e['type'] == 'remove')]
 
         '''
         #Save data
@@ -502,38 +543,6 @@ class App:
         cv2.imshow("Enhancements", data)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-
-    def ability_ocr(self, data, invert = False, dx=30, dy=12):
-        (h, w) = data.shape[:2]
-        if invert:
-            data = cv2.bitwise_not(data)
-            pad = np.concatenate((np.ones((dy, w)), data), axis=0) #top pad
-            pad = np.concatenate((pad, np.ones((dy, w))), axis=0) #btm pad
-            pad = np.concatenate((pad, np.ones((dy+h+dy, dx))), axis=1) #right pad
-        else:
-            pad = np.concatenate((np.zeros((dy, w)), data), axis=0) #top pad
-            pad = np.concatenate((pad, np.zeros((dy, w))), axis=0) #btm pad
-            pad = np.concatenate((pad, np.zeros((dy+h+dy, dx))), axis=1) #right pad
-
-        # Save preprocessed image
-        tmpfile = "ghclass\\tmp\{}.png".format(os.getpid())
-        cv2.imwrite(tmpfile, pad)
-
-        # load, parse, then delete preprocessed image
-        text = pytesseract.image_to_string(Image.open(tmpfile))
-        os.remove(tmpfile)
-        cv2.imshow('ROI', pad)
-        #cv2.waitKey(0)
-        return text
-
-    def distance(self, p1: tuple, p2: tuple):
-        sum = 0
-        if len(p1) != len(p2):
-            return None
-        else:
-            for (a, b) in zip(p1, p2):
-                sum += (b - a)**2
-        return np.sqrt(sum)
 
     def get_class_cards(self):
         #Class metadata

@@ -203,7 +203,7 @@ for e in enhancements:
 
 #Remove false enhancements
 enhancements = [e for e in enhancements if not (e['type'] == 'remove')]
-print(len(enhancements))
+
 
 # Show the final image with the matched area
 cv2.imshow('Detected', img_rgb)
