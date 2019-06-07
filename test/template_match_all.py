@@ -47,20 +47,59 @@ def find_enchancements(data):
         (xb,yb,wb,hb) = tuple(btm)
         if (xt < cx < xt+wt) and (yt < cy < yt+ht):
             cv2.circle(img_rgb,(cx,cy),3,(0,255,0),2)
-            enhancements.append({'location': (cx,cy), 'action': 'top', 'type':''})
+            enhancements.append({'xy': (cx,cy), 'action': 'top', 'type':''})
         elif (xb < cx < xb+wb) and (yb < cy < yb+hb):
             cv2.circle(img_rgb,(cx,cy),3,(0,255,0),2)
-            enhancements.append({'location': (cx,cy), 'action': 'btm', 'type':''})
+            enhancements.append({'xy': (cx,cy), 'action': 'btm', 'type':''})
         else:
             pass
+
+    #Find AoEs
+    _, threshold = cv2.threshold(data, 240, 255, cv2.THRESH_BINARY)
+    contours, _ = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    hexes = []
+    for cnt in contours:
+        area = cv2.contourArea(cnt)
+        if 900 < area < 1000:
+            arc = cv2.arcLength(cnt, True)
+            approx = cv2.approxPolyDP(cnt, 0.03*arc, True)
+            if len(approx) == 6:
+                cv2.drawContours(img_rgb, [approx], 0, (0, 255, 0), 2)
+                s = arc/6
+                h = 0.5*s*np.sqrt(3)
+                m = cv2.moments(approx)
+                cx = m['m10']/m['m00']
+                cy = m['m01']/m['m00']
+                hexes.append({'xy': (cx, cy), 'length': s})
+
+    #Mark the enhancement
+    for e in enhancements:
+        if len(hexes) > 0:
+            for hex in hexes:
+                d = distance(e['xy'], hex['xy'])
+                if 34 < d < 40:
+                    e['type'] = 'hex'
+                    cv2.circle(img_rgb,e['xy'],3,(255,0,0),2)
+                    break
+            else:
+                e['type'] = 'ability'
+                #cv2.circle(img_rgb,e['xy'],3,(0,255,0),2)
+        else:
+            e['type'] = 'ability'
+            #cv2.circle(img_rgb,e['xy'],3,(0,255,0),2)
+
+
 ###Start Here##            
 #resources
-imgpath = 'C:\\Users\\InnSight\\Documents\\Github\\Gloomhaven-Deck-Builder\\ghclass\\CH\\img\\162.png'
-iconpath = 'C:\\Users\\InnSight\\Documents\\Github\\Gloomhaven-Deck-Builder\\icons'
- 
+ghclass = 'CH'
+index = 170
+pcwd = os.path.dirname(os.getcwd())
+imgpath = '{}\\ghclass\\{}\\img\\{}.png'.format(pcwd, ghclass, index)
+iconpath = '{}\\icons'.format(pcwd)
+
 # Read the main image 
 img_rgb = cv2.imread(imgpath)
-  
+
 # Convert it to grayscale 
 img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY) 
 
@@ -92,8 +131,8 @@ for icon in os.listdir(iconpath):
     if best[1] >= threshold:
         x = best[3][0]
         y = best[3][1]
-        print('{}: {} - {} - BEST'.format(name, best[1], (x,y)))
-        icons.append({'location': (x,y), 'type': name})
+        #print('{}: {} - {} - BEST'.format(name, best[1], (x,y)))
+        icons.append({'xy': (x,y), 'type': name})
         cv2.rectangle(img_rgb, (x,y), (x+w, y+h), (0,255,0), 2)
         if name == '0summon':
             is_summon = True
@@ -105,17 +144,33 @@ for icon in os.listdir(iconpath):
         x = pt[0]
         y = pt[1]
         if distance(best[3], (x,y)) > 10 and distance(prev, (x,y)) > 10:
-            print('{}: {} - {}'.format(name, res[(y,x)], (x,y)))
-            icons.append({'location': (x,y), 'type': name})
+            #print('{}: {} - {}'.format(name, res[(y,x)], (x,y)))
+            icons.append({'xy': (x,y), 'type': name})
             cv2.rectangle(img_rgb, (x,y), (x+w, y+h), (0,255,255), 2)
         prev = (x,y)
   
 #Look for enhancements
 find_enchancements(img_gray)    
-  
-#print all
-print(icons)
-print(enhancements)
+
+#Match icons with ability enhancements
+print(len(enhancements))
+for e in enhancements:
+    print(e)
+    if e['type'] == 'ability':
+        for i in icons:
+            dx = np.abs(e['xy'][0] - i['xy'][0])
+            dy = np.abs(e['xy'][1] - i['xy'][1])
+            print('{}, {}'.format(dx, dy))
+            if dx <= 90 and dy <= 16:
+                e['type'] = i['type']
+                print(e)
+                cv2.circle(img_rgb,e['xy'],3,(0,255,0),2)
+                break
+        else:
+            print(e)
+            enhancements.remove(e)
+    else:
+        print(e)
   
 # Show the final image with the matched area
 cv2.imshow('Detected', img_rgb)
