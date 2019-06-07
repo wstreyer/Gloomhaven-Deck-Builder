@@ -19,7 +19,7 @@ def find_enchancements(data):
     img = cv2.medianBlur(data, 5)
 
     #Detection parameters
-    (p1, p2, minr, maxr) = (30, 12, 0, 4)
+    (p1, p2, minr, maxr) = (30, 12, 1, 4)
     params = {'mdist': 10, 
             'p1': p1, 
             'p2': p2, 
@@ -46,10 +46,10 @@ def find_enchancements(data):
         (xt,yt,wt,ht) = tuple(top)
         (xb,yb,wb,hb) = tuple(btm)
         if (xt < cx < xt+wt) and (yt < cy < yt+ht):
-            cv2.circle(img_rgb,(cx,cy),3,(0,255,0),2)
+            #cv2.circle(img_rgb,(cx,cy),3,(0,255,0),2)
             enhancements.append({'xy': (cx,cy), 'action': 'top', 'type':''})
         elif (xb < cx < xb+wb) and (yb < cy < yb+hb):
-            cv2.circle(img_rgb,(cx,cy),3,(0,255,0),2)
+            #cv2.circle(img_rgb,(cx,cy),3,(0,255,0),2)
             enhancements.append({'xy': (cx,cy), 'action': 'btm', 'type':''})
         else:
             pass
@@ -91,8 +91,8 @@ def find_enchancements(data):
 
 ###Start Here##            
 #resources
-ghclass = 'CH'
-index = 170
+ghclass = 'MT'
+index = 137
 pcwd = os.path.dirname(os.getcwd())
 imgpath = '{}\\ghclass\\{}\\img\\{}.png'.format(pcwd, ghclass, index)
 iconpath = '{}\\icons'.format(pcwd)
@@ -131,9 +131,9 @@ for icon in os.listdir(iconpath):
     if best[1] >= threshold:
         x = best[3][0]
         y = best[3][1]
-        #print('{}: {} - {} - BEST'.format(name, best[1], (x,y)))
+        print('{}: {} - {} - BEST'.format(name, best[1], (x,y)))
         icons.append({'xy': (x,y), 'type': name})
-        cv2.rectangle(img_rgb, (x,y), (x+w, y+h), (0,255,0), 2)
+        #cv2.rectangle(img_rgb, (x,y), (x+w, y+h), (0,255,0), 2)
         if name == '0summon':
             is_summon = True
     
@@ -144,34 +144,38 @@ for icon in os.listdir(iconpath):
         x = pt[0]
         y = pt[1]
         if distance(best[3], (x,y)) > 10 and distance(prev, (x,y)) > 10:
-            #print('{}: {} - {}'.format(name, res[(y,x)], (x,y)))
+            print('{}: {} - {}'.format(name, res[(y,x)], (x,y)))
             icons.append({'xy': (x,y), 'type': name})
-            cv2.rectangle(img_rgb, (x,y), (x+w, y+h), (0,255,255), 2)
+            #cv2.rectangle(img_rgb, (x,y), (x+w, y+h), (0,255,255), 2)
         prev = (x,y)
   
 #Look for enhancements
 find_enchancements(img_gray)    
 
 #Match icons with ability enhancements
-print(len(enhancements))
 for e in enhancements:
-    print(e)
     if e['type'] == 'ability':
         for i in icons:
             dx = np.abs(e['xy'][0] - i['xy'][0])
             dy = np.abs(e['xy'][1] - i['xy'][1])
-            print('{}, {}'.format(dx, dy))
-            if dx <= 90 and dy <= 16:
+            if dx <= 90 and dy <= 17:
                 e['type'] = i['type']
                 print(e)
                 cv2.circle(img_rgb,e['xy'],3,(0,255,0),2)
+                x = i['xy'][0]
+                y = i['xy'][1]
+                cv2.rectangle(img_rgb, (x,y), (x+w, y+h), (0,255,0), 2)
                 break
         else:
+            e['type'] = 'remove'
             print(e)
-            enhancements.remove(e)
     else:
         print(e)
-  
+
+#Remove false enhancements
+enhancements = [e for e in enhancements if not (e['type'] == 'remove')]
+print(enhancements)
+
 # Show the final image with the matched area
 cv2.imshow('Detected', img_rgb)
 

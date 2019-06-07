@@ -1,16 +1,20 @@
 # Python program to illustrate  
 # template matching 
 import cv2 
-import numpy as np 
+import numpy as np
+import os
 
 #resources
-imgpath = 'C:\\Users\\InnSight\\Documents\\Github\\Gloomhaven-Deck-Builder\\ghclass\\CH\\img\\156.png'
-iconpath = 'C:\\Users\\InnSight\\Documents\\Github\\Gloomhaven-Deck-Builder\\icons'
+ghclass = 'CH'
+index = 170
+pcwd = os.path.dirname(os.getcwd())
+imgpath = '{}\\ghclass\\{}\\img\\{}.png'.format(pcwd, ghclass, index)
+iconpath = '{}\\icons'.format(pcwd)
 
 # Specify a threshold 
 threshold = 0.8
 
-icon = 'pull-1'
+icon = 'push-2'
   
 # Read the main image 
 img_rgb = cv2.imread(imgpath)
@@ -19,7 +23,7 @@ img_rgb = cv2.imread(imgpath)
 img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY) 
   
 # Read the template
-(x,y,w,h) = (190, 110, 27, 27)
+(x,y,w,h) = (191, 124, 25, 25)
 template = img_gray[y:y+h,x:x+w]    
   
 # Perform match operations. 
