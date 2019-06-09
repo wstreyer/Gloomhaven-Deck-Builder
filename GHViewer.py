@@ -343,13 +343,36 @@ class App:
                 print('Summon on {} action'.format(i['action']))
                 summon = i['action']
                 break
+        self.card_data['summon'] = summon
 
         #Find possible enhancment locations
         enhancements = self.find_circles(img_gray, summon = summon)
 
-        #call find_AoE()
+        #Find AoE hexes
         hexes = self.find_hexagon(img_gray)
-
+        
+        #Find all top and btm hexes
+        hex1 = [hex for hex in hexes if (hex['action'] == 'top')]
+        hex2 = [hex for hex in hexes if (hex['action'] == 'btm')]
+        
+        #Determine if top AoE is melee or not
+        for hex in hex1:
+            if 'melee' in hex:
+                melee = True
+                break
+        else:
+            melee = False
+        self.card_data['hex1'] = len(hex1) - int(melee)
+        
+        #Determine if btm AoE is melee or not
+        for hex in hex2:
+            if 'melee' in hex:
+                melee = True
+                break
+        else:
+            melee = False
+        self.card_data['hex2'] = len(hex2) - int(melee)
+        
         #Find attack hex enhancements
         for e in enhancements:
             if len(hexes) > 0:
@@ -394,28 +417,27 @@ class App:
             else:
                 print(e)
 
+        #Show Data
+        cv2.imshow('Enhancements', self.card_rgb)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
         #Remove false enhancements
         enhancements = [e for e in enhancements if not (e['type'] == 'remove')]
-
-        '''
+        self.card_data['enhancements'] = enhancements
+        
         #Save data
         #data directory
         datapath = 'ghclass\{}\data'.format(self.ghclass)
         Path(datapath).mkdir(exist_ok=True,parents=True)
 
         #pickle        
-        with open('{}\{}.dat'.format(datapath, index),"w") as f:
-            pickle.dump(output, f)
+        with open('{0}\{1:03d}.dat'.format(datapath, self.card_index),"wb") as f:
+            pickle.dump(self.card_data, f)
 
         #readable text file
-        with open('{}\{}.txt'.format(datapath, index),"w") as f:
-            f.write(str(output))
-        '''
-
-        #Show Data
-        cv2.imshow('Enhancements', self.card_rgb)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        with open('{0}\{1:03d}.txt'.format(datapath, self.card_index),"w") as f:
+            f.write(str(self.card_data))
 
     def get_class_cards(self):
         #Class metadata
@@ -463,6 +485,7 @@ class App:
         try:
             raise NotImplementedError
             #open data directory
+            
             pass
         except:
             #Parse card data
@@ -540,7 +563,12 @@ class App:
                     m = cv2.moments(approx)
                     cx = m['m10']/m['m00']
                     cy = m['m01']/m['m00']
-                    hexes.append({'xy': (cx, cy), 'length': s})
+                    action = 'top' if cy <= 262 else 'btm'
+                    r = self.card_rgb[int(cy), int(cx), 2]
+                    if r < 100: #AoE is melee
+                        hexes.append({'xy': (cx, cy), 'length': s, 'action': action, 'melee': True})
+                    else:
+                        hexes.append({'xy': (cx, cy), 'length': s, 'action': action})
         return hexes
 
     #look for all known icons
