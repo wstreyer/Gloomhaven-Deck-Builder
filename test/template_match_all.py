@@ -26,6 +26,8 @@ def find_enchancements(data, summon = 'none'):
             'minr': minr, 
             'maxr': maxr}
 
+    cv2.imshow('', img)
+
     circles = cv2.HoughCircles(img,cv2.HOUGH_GRADIENT,1,
                             params['mdist'],
                             param1 = params['p1'],
@@ -33,6 +35,8 @@ def find_enchancements(data, summon = 'none'):
                             minRadius = params['minr'],
                             maxRadius=  params['maxr'])
     circles = np.uint16(np.around(circles))
+
+    print(len(circles[0,:]))
 
     #Find enhancement locations
     if summon == 'top':
@@ -42,8 +46,8 @@ def find_enchancements(data, summon = 'none'):
         (xt,yt,wt,ht) = (180, 75, 150, 165)
         (xb,yb,wb,hb) = (35, 310, 300, 155)
     else:
-       (xt,yt,wt,ht) = (180, 75, 150, 165)
-       (xb,yb,wb,hb) = (180, 310, 150, 155)
+       (xt,yt,wt,ht) = (175, 75, 155, 165)
+       (xb,yb,wb,hb) = (175, 310, 155, 155)
     
     #Show bounding box
     cv2.rectangle(img_rgb, (xt,yt), (xt+wt, yt+ht), (0,255,255), 2)
@@ -57,10 +61,10 @@ def find_enchancements(data, summon = 'none'):
         #Check Top/Btm Actions
         if (xt < cx < xt+wt) and (yt < cy < yt+ht):
             #cv2.circle(img_rgb,(cx,cy),3,(0,255,0),2)
-            enhancements.append({'xy': (cx,cy), 'action': 'top', 'type':''})
+            enhancements.append({'xy': (cx,cy), 'action': 'top', 'type':'ability', 'active': False})
         elif (xb < cx < xb+wb) and (yb < cy < yb+hb):
             #cv2.circle(img_rgb,(cx,cy),3,(0,255,0),2)
-            enhancements.append({'xy': (cx,cy), 'action': 'btm', 'type':''})
+            enhancements.append({'xy': (cx,cy), 'action': 'btm', 'type':'ability', 'active': False})
         else:
             pass
 
@@ -92,17 +96,17 @@ def find_enchancements(data, summon = 'none'):
                     cv2.circle(img_rgb,e['xy'],3,(255,0,0),2)
                     break
             else:
-                e['type'] = 'ability'
                 #cv2.circle(img_rgb,e['xy'],3,(0,255,0),2)
+                pass
         else:
-            e['type'] = 'ability'
             #cv2.circle(img_rgb,e['xy'],3,(0,255,0),2)
+            pass
 
 
 ###Start Here##            
 #resources
-ghclass = 'MT'
-index = 131
+ghclass = 'BR'
+index = 3
 pcwd = os.path.dirname(os.getcwd())
 imgpath = '{}\\ghclass\\{}\\img\\{}.png'.format(pcwd, ghclass, index)
 iconpath = '{}\\icons'.format(pcwd)
@@ -114,10 +118,10 @@ img_rgb = cv2.imread(imgpath)
 img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY) 
 
 # Specify a threshold 
-thresholds = [{'icons': ['attack', 'move', 'heal', 'shield', 'target', 'retaliate', 'push', 'pull'], 'threshold': 0.85},
-              {'icons': ['range'], 'threshold': 0.74},
-              {'icons': ['summon'], 'threshold': 0.826},
-              {'icons': ['pierce', 'poison'], 'threshold': 0.93}]
+thresholds = [{'icons': ['attack', 'move', 'heal', 'shield', 'retaliate'], 'threshold': 0.89},
+              {'icons': ['range', 'invisible', 'wound', 'immobilize'], 'threshold': 0.72},
+              {'icons': ['summon', 'target', 'push', 'pull'], 'threshold': 0.86},
+              {'icons': ['pierce', 'poison'], 'threshold': 0.89}]
 
 #look for all known icons
 icons = []
@@ -177,12 +181,12 @@ find_enchancements(img_gray, summon=summon)
 for e in enhancements:
     if e['type'] == 'ability':
         for i in icons:
-            dx = np.abs(e['xy'][0] - i['xy'][0])
-            dy = np.abs(e['xy'][1] - i['xy'][1])
-            print('({}, {})'.format(dx, dy))
+            dx = e['xy'][0] - i['xy'][0]
+            dy = e['xy'][1] - i['xy'][1]
+            #print('({}, {})'.format(dx, dy))
             
             xmax = 60 if i['action'] == summon else 90
-            if 37 <= dx <= xmax and dy <= 17:
+            if 37 <= dx <= xmax and 0 < dy <= 17:
                 if i['type'] == 'heal' and i['action'] == summon:
                     e['type'] = 'health' if i['action'] == summon else i['type']
                 else:

@@ -84,73 +84,6 @@ def distance(p1: tuple, p2: tuple):
                 sum += (b - a)**2
         return np.sqrt(sum)
 
-def find_circles(data, summon = 'none', params = (30, 12, 1, 4), mdist = 10):
-    #Get parameter
-    
-    
-    gray_img = cv2.cvtColor(data, cv2.COLOR_BGR2GRAY)
-    img = cv2.medianBlur(gray_img, 5)
-
-    #Find circles for possible enhancement locations
-    (p1, p2, minr, maxr) = params
-    circles = cv2.HoughCircles(img,cv2.HOUGH_GRADIENT,1, mdist, p1, p2, minr, maxr)
-    circles = np.uint16(np.around(circles))
-
-    #Set action bounding boxes
-    if summon == 'top':
-        (xt,yt,wt,ht) = (35, 75, 300, 165)
-        (xb,yb,wb,hb) = (180, 310, 150, 155)
-    elif summon == 'btm':
-        (xt,yt,wt,ht) = (180, 75, 150, 165)
-        (xb,yb,wb,hb) = (35, 310, 300, 155)
-    else:
-       (xt,yt,wt,ht) = (180, 75, 150, 165)
-       (xb,yb,wb,hb) = (180, 310, 150, 155)
-    
-    #Show bounding box
-    cv2.rectangle(data, (xt,yt), (xt+wt, yt+ht), (0,255,255), 2)
-    cv2.rectangle(data, (xb,yb), (xb+wb, yb+hb), (0,255,255), 2)
-    
-    #Filter enhancement locations
-    enhancements = []
-    for circ in circles[0,:]:
-        #Dot parameters
-        cx = circ[0]
-        cy = circ[1]
-        
-        #Check Top/Btm Actions
-        if (xt < cx < xt+wt) and (yt < cy < yt+ht):
-            #cv2.circle(img_rgb,(cx,cy),3,(0,255,0),2)
-            enhancements.append({'xy': (cx,cy), 'action': 'top', 'type':''})
-        elif (xb < cx < xb+wb) and (yb < cy < yb+hb):
-            #cv2.circle(img_rgb,(cx,cy),3,(0,255,0),2)
-            enhancements.append({'xy': (cx,cy), 'action': 'btm', 'type':''})
-        else:
-            pass
-
-    return enhancements
-
-#Find Hexagons
-def find_hexagon(data):
-    gray_img = cv2.cvtColor(data, cv2.COLOR_BGR2GRAY)
-    _, threshold = cv2.threshold(gray_img, 240, 255, cv2.THRESH_BINARY)
-    contours, _ = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    hexes = []
-    for cnt in contours:
-        area = cv2.contourArea(cnt)
-        if 900 < area < 1000:
-            arc = cv2.arcLength(cnt, True)
-            approx = cv2.approxPolyDP(cnt, 0.03*arc, True)
-            if len(approx) == 6:
-                cv2.drawContours(data, [approx], 0, (0, 255, 0), 2)
-                s = arc/6
-                h = 0.5*s*np.sqrt(3)
-                m = cv2.moments(approx)
-                cx = m['m10']/m['m00']
-                cy = m['m01']/m['m00']
-                hexes.append({'location': (cx, cy), 'length': s})
-    return hexes
-
 class App:
     def __init__(self, master):
         self.main = master
@@ -160,14 +93,10 @@ class App:
         self.index = 0
         self.startup_class = 'BR'
         self.hand_limit = 0
-        self.card_level = 1
         self.dpi = 150
         self.thread_count = 16
         self.fmt = 'png'
-        self.card_data = {}
-        self.top = [180, 80, 150, 160]
-        self.btm = [180, 315, 150, 150]
-        self.hough = [30, 12, 4, 0]
+        self.card_data = {'level': 1}
 
         #Create a notebook
         self.nb = ttk.Notebook(self.main)
@@ -198,7 +127,7 @@ class App:
         self.classname_label.pack(anchor = tk.NW)
         self.handlimit_label = tk.Label(self.stats_frame, text = 'Hand Limit: {}'.format(self.hand_limit))
         self.handlimit_label.pack(anchor = tk.NW)
-        self.cardlevel_label = tk.Label(self.stats_frame, text = 'Card Level: {}'.format(self.card_level))
+        self.cardlevel_label = tk.Label(self.stats_frame, text = 'Card Level: {}'.format(self.card_data['level']))
         self.cardlevel_label.pack(anchor = tk.NW)
         self.title_frame = tk.Frame(self.stats_frame)
         self.title_frame.pack(anchor = tk.NW, fill = tk.X)
@@ -231,65 +160,6 @@ class App:
         self.find_enhancement_button = tk.Button(self.enhancement_frame, text = 'Find', command = lambda: self.find_enhancements())
         self.find_enhancement_button.pack(side = tk.LEFT, anchor = tk.NW)
         
-        p1 = tk.IntVar(root)
-        p1.set(self.hough[0])
-        p1_label = tk.Label(self.stats_frame, text = 'P1')
-        p1_label.pack(anchor = tk. NW)
-        self.p1_spin = tk.Spinbox(self.stats_frame, from_ = 20, to = 40, textvariable = p1)
-        self.p1_spin.pack(anchor = tk.NW)
-
-        p2 = tk.IntVar(root)
-        p2.set(self.hough[1])
-        p2_label = tk.Label(self.stats_frame, text = 'p2')
-        p2_label.pack(anchor = tk. NW)
-        self.p2_spin = tk.Spinbox(self.stats_frame, from_ = 5, to = 25, textvariable = p2)
-        self.p2_spin.pack(anchor = tk.NW)
-
-        maxr = tk.IntVar(root)
-        maxr.set(self.hough[2])
-        maxr_label = tk.Label(self.stats_frame, text = 'maxr')
-        maxr_label.pack(anchor = tk. NW)
-        self.maxr_spin = tk.Spinbox(self.stats_frame, from_ = 0, to = 10, textvariable = maxr)
-        self.maxr_spin.pack(anchor = tk.NW)
-
-        minr = tk.IntVar(root)
-        minr.set(self.hough[3])
-        minr_label = tk.Label(self.stats_frame, text = 'minr')
-        minr_label.pack(anchor = tk. NW)
-        self.minr_spin = tk.Spinbox(self.stats_frame, from_ = 0, to = 10, textvariable = minr)
-        self.minr_spin.pack(anchor = tk.NW)
-
-        '''
-        box = [256, 146, 300, 50]
-        x = tk.IntVar(root)
-        x.set(box[0])
-        x_label = tk.Label(self.stats_frame, text = 'x')
-        x_label.pack(anchor = tk. NW)
-        self.x_spin = tk.Spinbox(self.stats_frame, from_ = 0, to = 500, textvariable = x)
-        self.x_spin.pack(anchor = tk.NW)
-
-        y = tk.IntVar(root)
-        y.set(box[1])
-        y_label = tk.Label(self.stats_frame, text = 'y')
-        y_label.pack(anchor = tk. NW)
-        self.y_spin = tk.Spinbox(self.stats_frame, from_ = 0, to = 500, textvariable = y)
-        self.y_spin.pack(anchor = tk.NW)
-
-        w = tk.IntVar(root)
-        w.set(box[2])
-        w_label = tk.Label(self.stats_frame, text = 'w')
-        w_label.pack(anchor = tk. NW)
-        self.w_spin = tk.Spinbox(self.stats_frame, from_ = 0, to = 500, textvariable = w)
-        self.w_spin.pack(anchor = tk.NW)
-
-        h = tk.IntVar(root)
-        h.set(box[3])
-        h_label = tk.Label(self.stats_frame, text = 'h')
-        h_label.pack(anchor = tk. NW)
-        self.h_spin = tk.Spinbox(self.stats_frame, from_ = 0, to = 500, textvariable = h)
-        self.h_spin.pack(anchor = tk.NW)
-        '''
-
         #Viewer Frame
         self.viewer_frame = tk.Frame(self.viewer)
         self.viewer_frame.pack(side = tk.LEFT)
@@ -399,7 +269,7 @@ class App:
                                                     first_page=ndx,
                                                     last_page=ndx,
                                                     fmt=self.fmt)
-            elif file:
+            elif pdffile:
                 card = pdf2image.convert_from_bytes(pdffile, dpi = self.dpi,
                                                     thread_count=self.thread_count,
                                                     first_page=ndx,
@@ -434,7 +304,7 @@ class App:
         #Extract text
         raw = parser.from_file(pdffile)
         cards = raw['content'].split('{}\n'.format(names[self.ghclass]))
-        for card in cards[1:-1]:
+        for card in cards[0:-1]:
             #Identify summons
             pass
 
@@ -443,7 +313,7 @@ class App:
             index = data[-1]
             level, title = data[-2].split('\n')
             initiative = data[-3].split(' ')[-1]
-            output = {'index': index, 'title': title, 'level': level, 'initiative': initiative, 'content': cards[1:-4]}
+            output = {'index': index, 'title': title, 'level': level, 'initiative': initiative, 'content': card[1:-4]}
 
             #Save data
             #pickle
@@ -460,21 +330,26 @@ class App:
         imgfile = '{}.{}'.format(self.card_index, self.fmt)
 
         #Load image
-        data = cv2.imread('{}\{}'.format(imgpath, imgfile))
+        self.card_rgb = cv2.imread('{}\{}'.format(imgpath, imgfile))
+        img_gray = cv2.cvtColor(self.card_rgb, cv2.COLOR_BGR2GRAY)
         
         #Find ability icons
-        #icons = find_icons()
-        #set value of summon
-
-        #find circles
-        circles = find_circles(data)
-
-        #call find_AoE()
-        hexes = find_hexagon(data)
+        icons = self.find_icons()
+        
+        #Check if card has a summon and which action it is (top or btm)
+        summon = 'none'
+        for i in icons:
+            if i['type'] == 'summon': 
+                print('Summon on {} action'.format(i['action']))
+                summon = i['action']
+                break
 
         #Find possible enhancment locations
-        enhancements = find_circles(data, circles, summon = summon)
-        
+        enhancements = self.find_circles(img_gray, summon = summon)
+
+        #call find_AoE()
+        hexes = self.find_hexagon(img_gray)
+
         #Find attack hex enhancements
         for e in enhancements:
             if len(hexes) > 0:
@@ -482,38 +357,36 @@ class App:
                     d = distance(e['xy'], hex['xy'])
                     if 34 < d < 40:
                         e['type'] = 'hex'
-                        cv2.circle(img_rgb,e['xy'],3,(255,0,0),2)
+                        cv2.circle(self.card_rgb,e['xy'],3,(255,0,0),2)
                         break
                 else:
                     e['type'] = 'ability'
-                    #cv2.circle(img_rgb,e['xy'],3,(0,255,0),2)
+                    #cv2.circle(self.card_rgb,e['xy'],3,(0,255,0),2)
             else:
                 e['type'] = 'ability'
-                #cv2.circle(img_rgb,e['xy'],3,(0,255,0),2)
+                #cv2.circle(self.card_rgb,e['xy'],3,(0,255,0),2)
 
-        
-        
         #Match icons with ability enhancements
         for e in enhancements:
             if e['type'] == 'ability':
                 for i in icons:
-                    dx = np.abs(e['xy'][0] - i['xy'][0])
-                    dy = np.abs(e['xy'][1] - i['xy'][1])
-                    print('({}, {})'.format(dx, dy))
+                    dx = e['xy'][0] - i['xy'][0]
+                    dy = e['xy'][1] - i['xy'][1]
+                    #print('({}, {})'.format(dx, dy))
                     
                     xmax = 60 if i['action'] == summon else 90
-                    if 37 <= dx <= xmax and dy <= 17:
+                    if 37 <= dx <= xmax and 0 < dy <= 17:
                         if i['type'] == 'heal' and i['action'] == summon:
                             e['type'] = 'health' if i['action'] == summon else i['type']
                         else:
                             e['type'] = i['type']
                         print(e)
-                        cv2.circle(img_rgb,e['xy'],3,(0,255,0),2)
+                        cv2.circle(self.card_rgb,e['xy'],3,(0,255,0),2)
                         x = i['xy'][0]
                         y = i['xy'][1]
                         w = i['size'][0]
                         h = i['size'][1]
-                        cv2.rectangle(img_rgb, (x,y), (x+w, y+h), (0,255,0), 2)
+                        cv2.rectangle(self.card_rgb, (x,y), (x+w, y+h), (0,255,0), 2)
                         break
                 else:
                     e['type'] = 'remove'
@@ -540,7 +413,7 @@ class App:
         '''
 
         #Show Data
-        cv2.imshow("Enhancements", data)
+        cv2.imshow('Enhancements', self.card_rgb)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
@@ -562,7 +435,7 @@ class App:
         if Path(imgpath).exists():
             self.cards = []
             for i in range(0, self.num_cards):
-                imgfile = '{}.{}'.format(i+1, self.fmt)
+                imgfile = '{}.{}'.format(global_index[self.ghclass]+i, self.fmt)
                 img = Image.open('{}\{}'.format(imgpath, imgfile))
                 self.cards.append(img)
         else:
@@ -600,16 +473,135 @@ class App:
             time.sleep(0.250)
         
         self.card = ImageTk.PhotoImage(self.cards[index])
-        self.get_card_level()
 
-    def get_card_level(self):
-        if self.index < self.hand_limit:
-            self.card_level = '1'
-        elif self.index < self.hand_limit + 3:
-            self.card_level = 'X'
+    def find_circles(self, data, summon = 'none', params = (30, 12, 1, 4), mdist = 10):
+        #gray_img = cv2.cvtColor(data, cv2.COLOR_BGR2GRAY)
+        img = cv2.medianBlur(data, 5)
+
+        #Find circles for possible enhancement locations
+        (p1, p2, minr, maxr) = params
+        circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT,1,
+                                    mdist,
+                                    param1 = p1,
+                                    param2 = p2,
+                                    minRadius = minr,
+                                    maxRadius = maxr)
+        circles = np.uint16(np.around(circles))
+
+        #Set action bounding boxes
+        if summon == 'top':
+            (xt,yt,wt,ht) = (35, 75, 300, 165)
+            (xb,yb,wb,hb) = (180, 310, 150, 155)
+        elif summon == 'btm':
+            (xt,yt,wt,ht) = (180, 75, 150, 165)
+            (xb,yb,wb,hb) = (35, 310, 300, 155)
         else:
-            self.card_level = str(int((self.index - self.hand_limit - 3)/2)+2)
-    
+            (xt,yt,wt,ht) = (180, 75, 150, 165)
+            (xb,yb,wb,hb) = (180, 310, 150, 155)
+        
+        #Show bounding box
+        cv2.rectangle(self.card_rgb, (xt,yt), (xt+wt, yt+ht), (0,255,255), 2)
+        cv2.rectangle(self.card_rgb, (xb,yb), (xb+wb, yb+hb), (0,255,255), 2)
+        
+        #Filter enhancement locations
+        enhancements = []
+        for circ in circles[0,:]:
+            #Dot parameters
+            cx = circ[0]
+            cy = circ[1]
+            
+            #Check Top/Btm Actions
+            if (xt < cx < xt+wt) and (yt < cy < yt+ht):
+                #cv2.circle(self.card_rgb,(cx,cy),3,(0,255,0),2)
+                enhancements.append({'xy': (cx,cy), 'action': 'top', 'type':''})
+            elif (xb < cx < xb+wb) and (yb < cy < yb+hb):
+                #cv2.circle(self.card_rgb,(cx,cy),3,(0,255,0),2)
+                enhancements.append({'xy': (cx,cy), 'action': 'btm', 'type':''})
+            else:
+                pass
+
+        return enhancements
+
+    #Find Hexagons
+    def find_hexagon(self, data):
+        #gray_img = cv2.cvtColor(data, cv2.COLOR_BGR2GRAY)
+        _, threshold = cv2.threshold(data, 240, 255, cv2.THRESH_BINARY)
+        contours, _ = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        hexes = []
+        for cnt in contours:
+            area = cv2.contourArea(cnt)
+            if 900 < area < 1000:
+                arc = cv2.arcLength(cnt, True)
+                approx = cv2.approxPolyDP(cnt, 0.03*arc, True)
+                if len(approx) == 6:
+                    cv2.drawContours(self.card_rgb, [approx], 0, (0, 255, 0), 2)
+                    s = arc/6
+                    h = 0.5*s*np.sqrt(3)
+                    m = cv2.moments(approx)
+                    cx = m['m10']/m['m00']
+                    cy = m['m01']/m['m00']
+                    hexes.append({'xy': (cx, cy), 'length': s})
+        return hexes
+
+    #look for all known icons
+    def find_icons(self):
+        # Convert it to grayscale 
+        img_gray = cv2.cvtColor(self.card_rgb, cv2.COLOR_BGR2GRAY) 
+
+        # Specify a threshold 
+        thresholds = [{'icons': ['attack', 'move', 'heal', 'shield', 'retaliate'], 'threshold': 0.89},
+                    {'icons': ['range', 'invisible', 'wound', 'immobilize'], 'threshold': 0.72},
+                    {'icons': ['summon', 'target', 'push', 'pull'], 'threshold': 0.86},
+                    {'icons': ['pierce', 'poison'], 'threshold': 0.89}]
+
+        pcwd = os.path.dirname(os.getcwd())
+        iconpath = 'icons'.format()
+
+        icons = []
+        for icon in os.listdir(iconpath):   
+            name = icon.split('.')[0]
+            name = name.split('-')[0]
+            
+            #Choose threshold from thresholds
+            for t in thresholds:
+                if name in t['icons']:
+                    threshold = t['threshold']
+                    break      
+            
+            # Read the template icon
+            template = cv2.imread(os.path.join(iconpath, icon),0)
+            w, h = template.shape[::-1]
+            
+            # Perform match operations. 
+            
+            res = cv2.matchTemplate(img_gray,template,cv2.TM_CCOEFF_NORMED)
+            
+            # Find the best match above threshold 
+            best = cv2.minMaxLoc(res)
+            if best[1] >= threshold:
+                x = best[3][0]
+                y = best[3][1]
+                #print('{}: {} - {} - BEST'.format(name, best[1], (x,y)))
+                action = 'top' if y <= 262 else 'btm'
+                icons.append({'xy': (x,y), 'size': (w,h), 'type': name, 'action': action, 'match': best[1]})
+                print(icons[-1])
+                cv2.rectangle(self.card_rgb, (x,y), (x+w, y+h), (0,255,255), 2)
+            
+            # Find all other matches above threshold
+            loc = np.where( res >= threshold)  
+            prev = (0,0)
+            for pt in zip(*loc[::-1]):
+                x = pt[0]
+                y = pt[1]
+                if distance(best[3], (x,y)) > 10 and distance(prev, (x,y)) > 10:
+                    #print('{}: {} - {}'.format(name, res[(y,x)], (x,y)))
+                    action = 'top' if y <= 262 else 'btm'
+                    icons.append({'xy': (x,y), 'size': (w,h), 'type': name, 'action': action, 'match': res[(y,x)]})
+                    print(icons[-1])
+                    cv2.rectangle(self.card_rgb, (x,y), (x+w, y+h), (0,255,255), 2)
+                prev = (x,y)        
+        return icons
+
 root = tk.Tk()
 GUI = App(root)
 root.mainloop()
