@@ -1,0 +1,1 @@
+{'index': '012', 'title': 'Balanced Measure', 'level': 'X', 'initiative': '77', 'content': '\n\nMove X\nwhere X is the amount of damage \nyou have inflicted so far this turn.\n\nAttack X\nwhere X is the number of hexes\nyou have moved so far this turn.\n\n1\n\n2\n\n2 77\n\nX\nBalanced Measure\n\n012', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': []}

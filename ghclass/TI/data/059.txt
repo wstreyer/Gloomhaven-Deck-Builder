@@ -1,0 +1,1 @@
+{'index': '059', 'title': 'Lethal Injection', 'level': '9', 'initiative': '85', 'content': '\n\nMove       4\n\nPOISON\nTarget all adjacent enemies\n\n2\n\nKill one adjacent normal or elite enemy.\n\n2\n\n2 85\n\n9\nLethal Injection\n\n059', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (252, 358), 'action': 'btm', 'type': 'move'}]}

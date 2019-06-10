@@ -1,0 +1,1 @@
+{'index': '096', 'title': 'Special Mixture', 'level': '1', 'initiative': '33', 'content': '\n\nPOISON     -\nTarget one adjacent enemy\n\nMove 3\n\nHeal 3\nSelf\n\n2\n\n2 33\n\n1\nSpecial Mixture\n\n096', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (250, 362), 'action': 'btm', 'type': 'move'}, {'xy': (246, 152), 'action': 'top', 'type': 'heal'}]}

@@ -1,0 +1,1 @@
+{'index': '033', 'title': 'Hook Gun', 'level': '1', 'initiative': '72', 'content': '\n\nLoot      2\n\n1\n\nAttack       2\nRange       3\nPULL         2\n\n2\n\n2 72\n\n1\nHook Gun\n\n033', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (238, 188), 'action': 'top', 'type': 'push'}, {'xy': (240, 162), 'action': 'top', 'type': 'range'}]}

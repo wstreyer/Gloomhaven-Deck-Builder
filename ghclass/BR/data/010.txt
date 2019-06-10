@@ -1,0 +1,1 @@
+{'index': '010', 'title': 'Spare Dagger', 'level': '1', 'initiative': '27', 'content': '\n\nAttack 2\n\nAttack 3\nRange       3\n\n1\n\n2\n\n2 27\n\n1\nSpare Dagger\n\n010', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (256, 126), 'action': 'top', 'type': 'attack'}, {'xy': (256, 390), 'action': 'btm', 'type': 'attack'}]}

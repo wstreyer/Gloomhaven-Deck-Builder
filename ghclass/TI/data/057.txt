@@ -1,0 +1,1 @@
+{'index': '057', 'title': 'Jet Propulsion', 'level': '8', 'initiative': '38', 'content': '\n\nMove       8\nJump    \n\n2\n\nAll summoned allies within\nRange      3 may perform \n\nMove + 2\nwith you controlling the actions. \n\n2\n\n2 38\n\n8\nJet Propulsion\n\n057', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (252, 358), 'action': 'btm', 'type': 'move'}]}

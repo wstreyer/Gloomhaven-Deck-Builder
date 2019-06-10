@@ -1,0 +1,1 @@
+{'index': '453', 'title': 'Patch Fur', 'level': '1', 'initiative': '20', 'content': '\n\n1\n\nHeal       4\nSelf\n\nCommand\n\nAll summoned allies gain Shield      1.\n\n2\n\n2 20\n\n1\nPatch Fur\n\n453', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (246, 358), 'action': 'btm', 'type': 'heal'}, {'xy': (274, 358), 'action': 'btm', 'type': 'heal'}]}

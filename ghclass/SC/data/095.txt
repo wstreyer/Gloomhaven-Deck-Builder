@@ -1,0 +1,1 @@
+{'index': '095', 'title': 'Quick Hands', 'level': '1', 'initiative': '64', 'content': '\n\nLoot      1\n\nAttack 2\n\nMove 2\n\n2\n\n2 64\n\n1\nQuick Hands\n\n095', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (254, 180), 'action': 'top', 'type': 'attack'}, {'xy': (250, 142), 'action': 'top', 'type': 'move'}]}

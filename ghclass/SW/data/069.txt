@@ -1,0 +1,1 @@
+{'index': '069', 'title': 'Crackling Air', 'level': 'X', 'initiative': '25', 'content': '\n\nMove       3\n\nRetaliate      2\nSelf\n\n:\n\n1\n\n1\n\nOn your next four attacks, add +1 Attack     .\n\nAdd +2 Attack       instead:\n\n2\n\n2 25\n\nX\nCrackling Air\n\n069', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (250, 360), 'action': 'btm', 'type': 'move'}]}

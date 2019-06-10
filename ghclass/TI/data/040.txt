@@ -1,0 +1,1 @@
+{'index': '040', 'title': 'Enhancement Field', 'level': '1', 'initiative': '61', 'content': '\n\nYou and all adjacent allies add\n+1 Attack       to all your Attacks this round.\n\nAttack       3\nRange       3\n\n2\n\n2 61\n\n1\nEnhancement Field\n\n040', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (256, 150), 'action': 'top', 'type': 'attack'}]}

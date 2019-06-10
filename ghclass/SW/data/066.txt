@@ -1,0 +1,1 @@
+{'index': '066', 'title': 'Frost Armor', 'level': '1', 'initiative': '20', 'content': '\n\nOn the next two sources of damage\non you, suffer no damage instead.\n\n1 1\n\nAttack       2\nRange       3\n\n+1 Attack      ,: 1\n\n2\n\n2 20\n\n1\nFrost Armor\n\n066', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (256, 132), 'action': 'top', 'type': 'attack'}]}

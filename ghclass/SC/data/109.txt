@@ -1,0 +1,1 @@
+{'index': '109', 'title': '6', 'level': 'Burning Oil', 'initiative': '95', 'content': '\n\n1\n\nLoot      2\n\nAttack 4 \nRange       3\n\nWOUND\n\n1\n\n2\n\n2 95\n\nBurning Oil\n6\n\n109', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (256, 114), 'action': 'top', 'type': 'attack'}, {'xy': (240, 142), 'action': 'top', 'type': 'range'}]}

@@ -1,0 +1,1 @@
+{'index': '123', 'title': 'Scurry', 'level': '1', 'initiative': '20', 'content': '\n\nLoot       2\n\n1\n\nMove       3\n\nAttack       1\n\n2\n\n2 20\n\n1\nScurry\n\n123', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (254, 182), 'action': 'top', 'type': 'attack'}, {'xy': (250, 140), 'action': 'top', 'type': 'move'}]}

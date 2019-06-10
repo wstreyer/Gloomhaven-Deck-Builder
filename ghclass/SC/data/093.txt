@@ -1,0 +1,1 @@
+{'index': '093', 'title': 'Venom Shiv', 'level': '1', 'initiative': '60', 'content': '\n\nMove 5\n\nAttack 3\nPOISON     -\n\n1\n\n2\n\n2 60\n\n1\nVenom Shiv\n\n093', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (250, 390), 'action': 'btm', 'type': 'move'}, {'xy': (254, 128), 'action': 'top', 'type': 'attack'}]}

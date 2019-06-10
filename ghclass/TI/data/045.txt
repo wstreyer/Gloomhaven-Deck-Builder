@@ -1,0 +1,1 @@
+{'index': '045', 'title': 'Stamina Booster', 'level': '2', 'initiative': '48', 'content': '\n\nOne ally within Range      3 may\nRecover        one lost card.\n\n2\n\nHeal       4\nRange       3\n\n2\n\n2 48\n\n2\nStamina Booster\n\n045', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (246, 148), 'action': 'top', 'type': 'heal'}]}

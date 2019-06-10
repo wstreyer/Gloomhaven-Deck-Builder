@@ -1,0 +1,1 @@
+{'index': '108', 'title': '6', 'level': 'Crippling Poison', 'initiative': '30', 'content': '\n\nAttack 2\nPOISON    -   \n\nIMMOBILIZE      -\n\n1\n\nAdd +2 Attack      to all your attacks\ntargeting poisoned enemies.\n\n2\n\n2 30\n\nCrippling Poison\n6\n\n108', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (254, 346), 'action': 'btm', 'type': 'attack'}]}

@@ -1,0 +1,1 @@
+{'index': '022', 'title': 'Quietus', 'level': '6', 'initiative': '57', 'content': '\n\nMove 3\n\nAdd +1 Attack to all\nyour Attacks this round.\n\nKill one adjacent normal enemy\nwith STUN .\n\n1\n\n2\n\n2 57\n\n6\nQuietus\n\n022', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (250, 348), 'action': 'btm', 'type': 'move'}]}

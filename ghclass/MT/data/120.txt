@@ -1,0 +1,1 @@
+{'index': '120', 'title': 'Gnawing Horde', 'level': '1', 'initiative': '82', 'content': '\n\nMove       4\n\n2\n\n: -\n\n: 1\n\n: 2\n\n: 6\n\nSummon Rat Swarm\n\nPOISON\n\n2\n\n2 82\n\n1\nGnawing Horde\n\n120'}

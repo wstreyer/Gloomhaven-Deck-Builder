@@ -133,16 +133,10 @@ class App:
         self.title_frame.pack(anchor = tk.NW, fill = tk.X)
         self.title_label = tk.Label(self.title_frame, text = 'Title:')
         self.title_label.pack(side = tk.LEFT)
-        self.title_entry = tk.Entry(self.title_frame)
-        self.title_entry.bind('<Return>', lambda event: self.update_title())
-        #self.title_entry.pack(side = tk.RIGHT)
         self.initiative_frame = tk.Frame(self.stats_frame)
         self.initiative_frame.pack(anchor = tk.NW, fill = tk.X)
         self.initiative_label = tk.Label(self.initiative_frame, text = 'Initiative:')
         self.initiative_label.pack(side = tk.LEFT)
-        self.initiative_entry = tk.Entry(self.initiative_frame)
-        self.initiative_entry.bind('<Return>', lambda event: self.update_initiative())
-        #self.initiative_entry.pack(side = tk.RIGHT)
         self.index_label = tk.Label(self.stats_frame, text = 'Index:')
         self.index_label.pack(anchor = tk.NW)
         self.edit_frame = tk.Frame(self.stats_frame)
@@ -230,16 +224,6 @@ class App:
         #readable text file
         with open('ghclass\{}\data\{}.txt'.format(self.ghclass, self.card_index),"w") as f: 
             f.write(str(self.card_data[self.ghclass]))
-
-    def update_title(self):
-        title = self.title_entry.get()
-        self.card_data[self.card_index]['Title'] = title
-        print(title)
-
-    def update_initiative(self):
-        initiative = self.initiative_entry.get()
-        self.card_data[self.card_index]['Initiative'] = initiative
-        print(initiative)
 
     def next_card(self):
         if self.index < self.num_cards - 1:
@@ -340,7 +324,7 @@ class App:
         summon = 'none'
         for i in icons:
             if i['type'] == 'summon': 
-                print('Summon on {} action'.format(i['action']))
+                #print('Summon on {} action'.format(i['action']))
                 summon = i['action']
                 break
         self.card_data['summon'] = summon
@@ -403,7 +387,7 @@ class App:
                             e['type'] = 'health' if i['action'] == summon else i['type']
                         else:
                             e['type'] = i['type']
-                        print(e)
+                        #print(e)
                         cv2.circle(self.card_rgb,e['xy'],3,(0,255,0),2)
                         x = i['xy'][0]
                         y = i['xy'][1]
@@ -413,9 +397,10 @@ class App:
                         break
                 else:
                     e['type'] = 'remove'
-                    print(e)
+                    #print(e)
             else:
-                print(e)
+                #print(e)
+                pass
 
         #Show Data
         cv2.imshow('Enhancements', self.card_rgb)
@@ -450,7 +435,6 @@ class App:
 
          #resource locations
         imgpath = 'ghclass\{}\img'.format(self.ghclass)
-        datapath = ''
         pdffile = 'ghclass\{0}\{0} Cards.pdf'.format(self.ghclass)
 
         #Retrieve class card images
@@ -482,12 +466,11 @@ class App:
             self.extract_thread.start()
 
         #Retrieve class card data
-        try:
-            raise NotImplementedError
-            #open data directory
-            
+        datapath = 'ghclass\{}\data'.format(self.ghclass)
+        if Path(datapath).exists():
+            #card data is already available
             pass
-        except:
+        else:
             #Parse card data
             self.parse_cards()
 
@@ -514,13 +497,13 @@ class App:
         #Set action bounding boxes
         if summon == 'top':
             (xt,yt,wt,ht) = (35, 75, 300, 165)
-            (xb,yb,wb,hb) = (180, 310, 150, 155)
+            (xb,yb,wb,hb) = (175, 310, 155, 155)
         elif summon == 'btm':
-            (xt,yt,wt,ht) = (180, 75, 150, 165)
+            (xt,yt,wt,ht) = (175, 75, 155, 165)
             (xb,yb,wb,hb) = (35, 310, 300, 155)
         else:
-            (xt,yt,wt,ht) = (180, 75, 150, 165)
-            (xb,yb,wb,hb) = (180, 310, 150, 155)
+            (xt,yt,wt,ht) = (175, 75, 155, 165)
+            (xb,yb,wb,hb) = (175, 310, 155, 155)
         
         #Show bounding box
         cv2.rectangle(self.card_rgb, (xt,yt), (xt+wt, yt+ht), (0,255,255), 2)
@@ -579,7 +562,7 @@ class App:
         # Specify a threshold 
         thresholds = [{'icons': ['attack', 'move', 'heal', 'shield', 'retaliate'], 'threshold': 0.89},
                     {'icons': ['range', 'invisible', 'wound', 'immobilize'], 'threshold': 0.72},
-                    {'icons': ['summon', 'target', 'push', 'pull'], 'threshold': 0.86},
+                    {'icons': ['summon', 'target', 'push', 'pull'], 'threshold': 0.85},
                     {'icons': ['pierce', 'poison'], 'threshold': 0.89}]
 
         pcwd = os.path.dirname(os.getcwd())
@@ -612,7 +595,7 @@ class App:
                 #print('{}: {} - {} - BEST'.format(name, best[1], (x,y)))
                 action = 'top' if y <= 262 else 'btm'
                 icons.append({'xy': (x,y), 'size': (w,h), 'type': name, 'action': action, 'match': best[1]})
-                print(icons[-1])
+                #print(icons[-1])
                 cv2.rectangle(self.card_rgb, (x,y), (x+w, y+h), (0,255,255), 2)
             
             # Find all other matches above threshold
@@ -625,7 +608,7 @@ class App:
                     #print('{}: {} - {}'.format(name, res[(y,x)], (x,y)))
                     action = 'top' if y <= 262 else 'btm'
                     icons.append({'xy': (x,y), 'size': (w,h), 'type': name, 'action': action, 'match': res[(y,x)]})
-                    print(icons[-1])
+                    #print(icons[-1])
                     cv2.rectangle(self.card_rgb, (x,y), (x+w, y+h), (0,255,255), 2)
                 prev = (x,y)        
         return icons

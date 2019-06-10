@@ -1,0 +1,1 @@
+{'index': '448', 'title': 'Spirit Swap', 'level': '1', 'initiative': '22', 'content': '\n\nSwap the positions of any two enemies.\n\nMove       2\n\n1\n\nCommand\n\n2\n\n2 22\n\n1\nSpirit Swap\n\n448', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (256, 138), 'action': 'top', 'type': 'move'}, {'xy': (282, 138), 'action': 'top', 'type': 'move'}]}

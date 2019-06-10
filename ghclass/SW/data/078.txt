@@ -1,0 +1,1 @@
+{'index': '078', 'title': 'Chromatic Explosion', 'level': '5', 'initiative': '71', 'content': '\n\nMove       2\n\nAttack       3 \nRange       3\n\n2\n\n2\n\n2 71\n\n5\nChromatic Explosion\n\n078', 'summon': 'none', 'hex1': 3, 'hex2': 0, 'enhancements': [{'xy': (250, 372), 'action': 'btm', 'type': 'move'}, {'xy': (202, 92), 'action': 'top', 'type': 'attack'}]}

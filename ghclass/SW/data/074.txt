@@ -1,0 +1,1 @@
+{'index': '074', 'title': 'Cold Fire', 'level': '3', 'initiative': '67', 'content': '\n\nLoot      2\n\nAttack       1 \nRange       3\n\n+2 Attack:\nSTUN:\n\n2\n\n2 67\n\n3\nCold Fire\n\n074', 'summon': 'none', 'hex1': 3, 'hex2': 0, 'enhancements': [{'xy': (244, 144), 'action': 'top', 'type': 'hex'}]}

@@ -1,0 +1,1 @@
+{'index': '456', 'title': 'Howling Bolts', 'level': '1', 'initiative': '47', 'content': '\n\n1\n\nMove       5\n\nCommand\n\nAttack       1\nRange       4\nTarget       3\n\n2\n\n2 47\n\n1\nHowling Bolts\n\n456', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (242, 188), 'action': 'top', 'type': 'target'}, {'xy': (252, 368), 'action': 'btm', 'type': 'move'}]}

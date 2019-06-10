@@ -1,0 +1,1 @@
+{'index': '094', 'title': 'Throwing Knives', 'level': '1', 'initiative': '10', 'content': '\n\nLoot      2\n\nAttack 2 \nRange       3\nTarget        2\n\n1\n\n2\n\n2 10\n\n1\nThrowing Knives\n\n094', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (238, 142), 'action': 'top', 'type': 'range'}]}

@@ -1,0 +1,1 @@
+{'index': '068', 'title': 'Ride the Wind', 'level': '1', 'initiative': '83', 'content': '\n\nMove       8\nJump   \n\nLoot     1\n\n2\n\n2 83\n\n1\nRide the Wind\n\n068', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (252, 358), 'action': 'btm', 'type': 'move'}]}

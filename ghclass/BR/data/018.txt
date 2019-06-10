@@ -1,0 +1,1 @@
+{'index': '018', 'title': 'Unstoppable Charge', 'level': '4', 'initiative': '86', 'content': '\n\nMove 4\n\nSTUN     -\nTarget all adjacent enemies\n\nAttack 5\n\n1\n\n2\n\n2 86\n\n4\nUnstoppable Charge\n\n018', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (254, 140), 'action': 'top', 'type': 'attack'}, {'xy': (252, 354), 'action': 'btm', 'type': 'move'}]}

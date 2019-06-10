@@ -1,0 +1,1 @@
+{'index': '019', 'title': 'Devastating Hack', 'level': '4', 'initiative': '27', 'content': '\n\nLoot      1\n\nAttack 8\n\n3\n\n2\n\n2 27\n\n4\nDevastating Hack\n\n019', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (282, 138), 'action': 'top', 'type': 'attack'}, {'xy': (254, 138), 'action': 'top', 'type': 'attack'}]}

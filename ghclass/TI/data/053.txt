@@ -1,0 +1,1 @@
+{'index': '053', 'title': 'Gas Canister', 'level': '6', 'initiative': '71', 'content': '\n\nAt the end of your next four turns, one ally within \nRange       3 may Recover        one discarded card.\n\n1\n\n1\n\nCreate one 4 damage MUDDLE      \ntrap in an adjacent empty hex.\n\n2\n\n2 71\n\n6\nGas Canister\n\n053', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': []}

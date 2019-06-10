@@ -1,0 +1,1 @@
+{'index': '167', 'title': 'Dig Pit', 'level': '6', 'initiative': '78', 'content': '\n\nMove       2\n\nINVISIBLE\nSelf\n\nCreate one 2 damage STUN         trap\nin an adjacent empty hex.\n\nMUDDLE      -\nTarget all adjacent enemies\n\n2\n\n2 78\n\n6\nDig Pit\n\n167', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (250, 358), 'action': 'btm', 'type': 'move'}]}

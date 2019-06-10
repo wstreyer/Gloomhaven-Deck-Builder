@@ -1,0 +1,1 @@
+{'index': '118', 'title': 'Fearsome Blade', 'level': '1', 'initiative': '27', 'content': '\n\nMove       4\n\nAttack       2\n\n2\n\n1\n\nAttack       2\nPUSH         3\n\n2\n\n2 27\n\n1\nFearsome Blade\n\n118'}

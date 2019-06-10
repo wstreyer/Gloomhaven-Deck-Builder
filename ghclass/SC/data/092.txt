@@ -1,0 +1,1 @@
+{'index': '092', 'title': 'Thief’s Knack', 'level': '1', 'initiative': '23', 'content': '\n\nAttack 3\n\n1\n\nDisarm one adjacent trap.\n\n2\n\n2\n\n2 23\n\n1\nThief’s Knack\n\n092', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (254, 368), 'action': 'btm', 'type': 'attack'}]}

@@ -1,0 +1,1 @@
+{'index': '047', 'title': 'Tinkerer’s Tools', 'level': '3', 'initiative': '26', 'content': '\n\nCreate one STUN         trap in\nan adjacent empty hex.\n\nDisarm one adjacent trap.\n\n1\n\n2\n\n2 26\n\n3\nTinkerer’s Tools\n\n047', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': []}

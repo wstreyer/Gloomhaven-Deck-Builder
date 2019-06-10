@@ -1,0 +1,1 @@
+{'index': '127', 'title': 'Possession', 'level': 'X', 'initiative': '51', 'content': '\n\nOne ally within Range       3 may perform\n\nMove       4\n\nOne adjacent ally may perform\n\nAttack       6\n\n2\n\n2\n\n2 51\n\nX\nPossession\n\n127', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': []}

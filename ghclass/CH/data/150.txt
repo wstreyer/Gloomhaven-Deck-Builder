@@ -1,0 +1,1 @@
+{'index': '150', 'title': 'Backup Ammunition', 'level': '1', 'initiative': '77', 'content': '\n\nMove       3\n\nOn your next four ranged Attack actions,\ngain Add Target         .\n\n1\n\n1\n\n1\n\n1\n\n2\n\n2 77\n\n1\nBackup Ammunition\n\n150', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (252, 388), 'action': 'btm', 'type': 'move'}]}

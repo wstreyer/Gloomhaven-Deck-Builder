@@ -1,0 +1,1 @@
+{'index': '146', 'title': 'Crushing Grasp', 'level': '1', 'initiative': '35', 'content': '\n\nLoot      1\n\nAttack       3\nIMMOBILIZE     -\n\n2\n\n2 35\n\n1\nCrushing Grasp\n\n146', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (256, 130), 'action': 'top', 'type': 'attack'}]}

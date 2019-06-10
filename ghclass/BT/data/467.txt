@@ -1,0 +1,1 @@
+{'index': '467', 'title': 'Stone Sigil', 'level': '5', 'initiative': '95', 'content': '\n\nMove       5\n\nCommand\n\n2\n\nSummon Monolith\n\n: -\n\n: -\n\n: -\n\n: 15\nShield 2\n\n2\n\n2 95\n\n5\nStone Sigil\n\n467', 'summon': 'top', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (280, 384), 'action': 'btm', 'type': 'move'}, {'xy': (252, 384), 'action': 'btm', 'type': 'move'}]}
