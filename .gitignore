@@ -18,6 +18,7 @@ __pycache__/
 *.ttf
 !icons/*.png
 !assets/Icon Pack/small/*.png
+!assets/Icon Pack/widgets/*.png
 
 
 # Distribution / packaging

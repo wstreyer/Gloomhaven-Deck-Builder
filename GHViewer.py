@@ -213,9 +213,10 @@ class App:
         #Viewer controls
         self.control_frame = tk.Frame(self.viewer_frame)
         self.control_frame.pack()
-        self.prev = tk.Button(self.control_frame, text = 'Prev', command = lambda: self.prev_card())
+        self.left_arrow = tk.PhotoImage(file = 'assets\\Icon Pack\\widgets\\left-arrow.png')
+        self.prev = tk.Button(self.control_frame, text = 'Prev', image = self.left_arrow, command = lambda: self.prev_card())
         self.prev.pack(side = tk.LEFT)
-        self.classmenu = tk.Menubutton(self.control_frame, text="Class", relief=tk.RAISED )
+        self.classmenu = tk.Menubutton(self.control_frame, text="Class", font = ('Nyala', 10, 'bold'),relief=tk.RAISED )
         self.classmenu.menu = tk.Menu(self.classmenu, tearoff = 0 )
         self.classmenu["menu"] = self.classmenu.menu
         self.classmenu.pack(side = tk.LEFT)
@@ -227,7 +228,8 @@ class App:
             imgfile = '{}\\{}'.format(iconpath, icon) 
             self.icons[name] = tk.PhotoImage(file = imgfile)
             self.classmenu.menu.add_command(label='', image=self.icons[name], compound="left", command = lambda my_icon = name: self.update_class(my_icon))
-        self.next = tk.Button(self.control_frame, text = 'Next', command = lambda: self.next_card())
+        self.right_arrow = tk.PhotoImage(file = 'assets\\Icon Pack\\widgets\\right-arrow.png')
+        self.next = tk.Button(self.control_frame, text = 'Next', image = self.right_arrow, command = lambda: self.next_card())
         self.next.pack(side = tk.LEFT)       
         
         #Place to show card
