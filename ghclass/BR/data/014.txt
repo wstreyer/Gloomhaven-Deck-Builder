@@ -1,1 +1,1 @@
-{'index': '014', 'title': 'Fatal Advance', 'level': '2', 'initiative': '40', 'content': '\n\nMove 4\n\nKill one adjacent normal enemy.\n\n2\n\n2\n\n2 40\n\n2\nFatal Advance\n\n014', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (252, 390), 'action': 'btm', 'type': 'move'}]}
+{'index': '014', 'title': 'Fatal Advance', 'level': '2', 'initiative': '40', 'content': '\n\nMove 4\n\nKill one adjacent normal enemy.\n\n2\n\n2\n\n2 40\n\n2\nFatal Advance\n\n014'}

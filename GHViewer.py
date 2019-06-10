@@ -10,6 +10,7 @@ import urllib.request
 import pdf2image
 import tkinter as tk
 import tkinter.ttk as ttk
+import tkinter.messagebox as mb
 from PIL import ImageTk, Image
 import threading
 import time
@@ -36,7 +37,17 @@ names = {'BR':'Brute',
         'SC':'Scoundrel',
         'SW':'Spellweaver',
         'TI':'Tinkerer',
-        'BT':'Beast Tyrant'}
+        'BT':'Beast Tyrant',
+        'BE':'-',
+        'QM':'-',
+        'NS':'-',
+        'DS':'-',
+        'SS':'-',
+        'SK':'-',
+        'EL':'-',
+        'SU':'-',
+        'PH':'-',
+        'SB':'-'}
 
 races = {'BR':'Inox',
         'CH':'Savaas',
@@ -44,7 +55,17 @@ races = {'BR':'Inox',
         'SC':'Human',
         'SW':'Orchid',
         'TI':'Quatryl',
-        'BT': 'Vermling'}
+        'BT': 'Vermling',
+        'BE':'-',
+        'QM':'-',
+        'NS':'-',
+        'DS':'-',
+        'SS':'-',
+        'SK':'-',
+        'EL':'-',
+        'SU':'-',
+        'PH':'-',
+        'SB':'-'}
 
 global_index = {'BR':1,
                 'CH':145,
@@ -52,7 +73,17 @@ global_index = {'BR':1,
                 'SC':88,
                 'SW':61,
                 'TI':30,
-                'BT':447}
+                'BT':447,
+                'BE':'-',
+                'QM':'-',
+                'NS':'-',
+                'DS':'-',
+                'SS':'-',
+                'SK':'-',
+                'EL':'-',
+                'SU':'-',
+                'PH':'-',
+                'SB':'-'}
 
 hand_limits = {'BR':10,
                 'CH':11,
@@ -60,7 +91,17 @@ hand_limits = {'BR':10,
                 'SC':9,
                 'SW':8,
                 'TI':12,
-                'BT':10}
+                'BT':10,
+                'BE':0,
+                'QM':0,
+                'NS':0,
+                'DS':0,
+                'SS':0,
+                'SK':0,
+                'EL':0,
+                'SU':0,
+                'PH':0,
+                'SB':0}
 
 code_names = {'BR':'Brute',
             'CH':'Cragheart',
@@ -68,7 +109,17 @@ code_names = {'BR':'Brute',
             'SC':'Scoundrel',
             'SW':'Spellweaver',
             'TI':'Tinkerer',
-            'BT':'Two Minis'}
+            'BT':'Two Minis',
+            'BE':'Lightning Bolts',
+            'QM':'Three Spears',
+            'NS':'Eclipse',
+            'DS':'Grumpy Face',
+            'SS':'Music Note',
+            'SK':'Sun',
+            'EL':'Triforce',
+            'SU':'Circles',
+            'PH':'Cthulu Face',
+            'SB':'Saw'}
 
 code_names_inv = {v: k for k, v in code_names.items()}
 
@@ -91,7 +142,7 @@ class App:
 
         #Global constants
         self.index = 0
-        self.startup_class = 'BR'
+        self.ghclass = 'BR'
         self.hand_limit = 0
         self.dpi = 150
         self.thread_count = 16
@@ -119,25 +170,26 @@ class App:
         self.viewer.focus_set()
 
         #Stats frame
-        self.stats_frame = tk.Frame(self.viewer)
+        self.stats_frame = tk.Frame(self.viewer, width = 160, height = 400)
+        self.stats_frame.pack_propagate(0)
         self.stats_frame.pack(side = tk.LEFT, anchor = tk.NW)
 
         #Card stats
-        self.classname_label = tk.Label(self.stats_frame, text = 'Class:')
+        self.classname_label = tk.Label(self.stats_frame, text = 'Class:', font = ('Pirata One', 12))
         self.classname_label.pack(anchor = tk.NW)
-        self.handlimit_label = tk.Label(self.stats_frame, text = 'Hand Limit: {}'.format(self.hand_limit))
+        self.handlimit_label = tk.Label(self.stats_frame, text = 'Hand Limit: {}'.format(self.hand_limit), font = ('Pirata One', 12))
         self.handlimit_label.pack(anchor = tk.NW)
-        self.cardlevel_label = tk.Label(self.stats_frame, text = 'Card Level: {}'.format(self.card_data['level']))
+        self.cardlevel_label = tk.Label(self.stats_frame, text = 'Card Level: {}'.format(self.card_data['level']), font = ('Pirata One', 12))
         self.cardlevel_label.pack(anchor = tk.NW)
         self.title_frame = tk.Frame(self.stats_frame)
         self.title_frame.pack(anchor = tk.NW, fill = tk.X)
-        self.title_label = tk.Label(self.title_frame, text = 'Title:')
+        self.title_label = tk.Label(self.title_frame, text = 'Title:', font = ('Pirata One', 12))
         self.title_label.pack(side = tk.LEFT)
         self.initiative_frame = tk.Frame(self.stats_frame)
         self.initiative_frame.pack(anchor = tk.NW, fill = tk.X)
-        self.initiative_label = tk.Label(self.initiative_frame, text = 'Initiative:')
+        self.initiative_label = tk.Label(self.initiative_frame, text = 'Initiative:', font = ('Pirata One', 12))
         self.initiative_label.pack(side = tk.LEFT)
-        self.index_label = tk.Label(self.stats_frame, text = 'Index:')
+        self.index_label = tk.Label(self.stats_frame, text = 'Index:', font = ('Pirata One', 12))
         self.index_label.pack(anchor = tk.NW)
         self.edit_frame = tk.Frame(self.stats_frame)
         #self.edit_frame.pack(anchor = tk.NW, fill = tk.X)
@@ -145,7 +197,7 @@ class App:
         self.edit_card_button.pack(side = tk.LEFT)
         self.save_card_button = tk.Button(self.edit_frame, text = 'Save', command = lambda: self.save_card())
         self.save_card_button.pack(side = tk.LEFT)
-        self.enhancement_label = tk.Label(self.stats_frame, text = 'Enhancements')
+        self.enhancement_label = tk.Label(self.stats_frame, text = 'Enhancements', font = ('Pirata One', 12))
         self.enhancement_label.pack(anchor = tk.NW)
         self.enhancement_frame = tk.Frame(self.stats_frame)
         self.enhancement_frame.pack(anchor = tk.NW)
@@ -163,10 +215,18 @@ class App:
         self.control_frame.pack()
         self.prev = tk.Button(self.control_frame, text = 'Prev', command = lambda: self.prev_card())
         self.prev.pack(side = tk.LEFT)
-        self.classvar = tk.StringVar(self.main)
-        self.classvar.set(names[self.startup_class])
-        self.classmenu = tk.OptionMenu(self.control_frame, self.classvar, *classes, command = lambda _: self.update_class())
+        self.classmenu = tk.Menubutton(self.control_frame, text="Class", relief=tk.RAISED )
+        self.classmenu.menu = tk.Menu(self.classmenu, tearoff = 0 )
+        self.classmenu["menu"] = self.classmenu.menu
         self.classmenu.pack(side = tk.LEFT)
+        iconpath = 'assets\\Icon Pack\\small'
+        self.icons = {}
+        for icon in os.listdir(iconpath):
+            name = icon.split('.')[0]
+            name = name.split('-')[0]
+            imgfile = '{}\\{}'.format(iconpath, icon) 
+            self.icons[name] = tk.PhotoImage(file = imgfile)
+            self.classmenu.menu.add_command(label='', image=self.icons[name], compound="left", command = lambda my_icon = name: self.update_class(my_icon))
         self.next = tk.Button(self.control_frame, text = 'Next', command = lambda: self.next_card())
         self.next.pack(side = tk.LEFT)       
         
@@ -177,7 +237,7 @@ class App:
         #Create status bar
         self.status_frame = tk.Frame(self.main)
         self.status_frame.pack(side = tk.BOTTOM, fill = tk.X)
-        self.status_label = tk.Label(self.status_frame, text = '{}: '.format(names[self.startup_class]))
+        self.status_label = tk.Label(self.status_frame, text = '{}: '.format(names[self.ghclass]))
         self.status_label.pack(side = tk .LEFT)
         
         #Get cards
@@ -192,7 +252,14 @@ class App:
         self.index_label.config(text = 'Index: {}'.format(self.card_index))
         self.cardimg.config(image = self.card)
 
-    def update_class(self):
+    def update_class(self, ghclass = ''):
+        if ghclass == '':
+            pass
+        elif names[ghclass] == '-':
+                mb.showinfo('', 'This class is locked')
+                return
+        else:
+            self.ghclass = ghclass
         self.get_class_cards()
         self.get_card(2*self.index)
         self.update_card()
@@ -254,7 +321,7 @@ class App:
                                                     last_page=ndx,
                                                     fmt=self.fmt)
             elif pdffile:
-                card = pdf2image.convert_from_bytes(pdffile, dpi = self.dpi,
+                card = pdf2image.convert_from_path(pdffile, dpi = self.dpi,
                                                     thread_count=self.thread_count,
                                                     first_page=ndx,
                                                     last_page=ndx,
@@ -426,7 +493,6 @@ class App:
 
     def get_class_cards(self):
         #Class metadata
-        self.ghclass = code_names_inv[self.classvar.get()]
         self.classname = names[self.ghclass]
         self.classrace = races[self.ghclass]
         self.hand_limit = hand_limits[self.ghclass]
@@ -479,7 +545,7 @@ class App:
             time.sleep(0.250)
         
         self.card = ImageTk.PhotoImage(self.cards[index])
-
+    
     def find_circles(self, data, summon = 'none', params = (30, 12, 1, 4), mdist = 10):
         #gray_img = cv2.cvtColor(data, cv2.COLOR_BGR2GRAY)
         img = cv2.medianBlur(data, 5)

@@ -1,1 +1,1 @@
-{'index': '006', 'title': 'Grab and Go', 'level': '1', 'initiative': '87', 'content': '\n\nMove 4\n\nLoot      1\n\n2\n\n2 87\n\n1\nGrab and Go\n\n006', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (284, 390), 'action': 'btm', 'type': 'move'}, {'xy': (256, 390), 'action': 'btm', 'type': 'move'}]}
+{'index': '006', 'title': 'Grab and Go', 'level': '1', 'initiative': '87', 'content': '\n\nMove 4\n\nLoot      1\n\n2\n\n2 87\n\n1\nGrab and Go\n\n006'}
