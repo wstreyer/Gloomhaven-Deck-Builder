@@ -1,0 +1,1 @@
+{'level': 1, 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (256, 344), 'action': 'btm', 'type': 'move'}, {'xy': (250, 390), 'action': 'btm', 'type': 'heal'}]}
