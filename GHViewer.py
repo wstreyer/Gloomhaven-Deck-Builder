@@ -21,6 +21,25 @@ import os
 import pickle
 
 #GH Class data
+locked = {'BR':False,
+        'CH':False,
+        'MT':False,
+        'SC':False,
+        'SW':False,
+        'TI':False,
+        'BT':False,
+        'BE':True,
+        'QM':True,
+        'NS':True,
+        'DS':True,
+        'SS':True,
+        'SK':True,
+        'EL':True,
+        'SU':True,
+        'PH':True,
+        'SB':True,
+        'DI':False}
+
 resourceurl = 'https://drive.google.com/uc?export=download&id='
 
 resources = {'BR':'0B8ppELln5Z0rdjJzSGZMYXNqVkE',
@@ -29,7 +48,18 @@ resources = {'BR':'0B8ppELln5Z0rdjJzSGZMYXNqVkE',
              'SC':'0B8ppELln5Z0rbTlRLUIxVk5NQlE',
              'SW':'0B8ppELln5Z0rYjhYQkV4bUpoOFE',
              'TI':'0B8ppELln5Z0rUVJRRGw1MTV5cTQ',
-             'BT':'0B8ppELln5Z0raE1nSVlNV1g0TVE'}
+             'BT':'0B8ppELln5Z0raE1nSVlNV1g0TVE',
+             'BE':'-',
+             'QM':'-',
+             'NS':'-',
+             'DS':'-',
+             'SS':'-',
+             'SK':'-',
+             'EL':'-',
+             'SU':'-',
+             'PH':'-',
+             'SB':'-',
+             'DI':'-'}
 
 names = {'BR':'Brute',
         'CH':'Cragheart',
@@ -47,7 +77,8 @@ names = {'BR':'Brute',
         'EL':'-',
         'SU':'-',
         'PH':'-',
-        'SB':'-'}
+        'SB':'-',
+        'DI':'Diviner'}
 
 races = {'BR':'Inox',
         'CH':'Savaas',
@@ -65,7 +96,8 @@ races = {'BR':'Inox',
         'EL':'-',
         'SU':'-',
         'PH':'-',
-        'SB':'-'}
+        'SB':'-',
+        'DI':'Aesther'}
 
 global_index = {'BR':1,
                 'CH':145,
@@ -74,16 +106,17 @@ global_index = {'BR':1,
                 'SW':61,
                 'TI':30,
                 'BT':447,
-                'BE':'-',
-                'QM':'-',
-                'NS':'-',
-                'DS':'-',
-                'SS':'-',
-                'SK':'-',
-                'EL':'-',
-                'SU':'-',
-                'PH':'-',
-                'SB':'-'}
+                'BE':319,
+                'QM':205,
+                'NS':261,
+                'DS':376,
+                'SS':348,
+                'SK':175,
+                'EL':476,
+                'SU':233,
+                'PH':289,
+                'SB':407,
+                'DI':574}
 
 hand_limits = {'BR':10,
                 'CH':11,
@@ -92,16 +125,17 @@ hand_limits = {'BR':10,
                 'SW':8,
                 'TI':12,
                 'BT':10,
-                'BE':0,
-                'QM':0,
-                'NS':0,
-                'DS':0,
-                'SS':0,
-                'SK':0,
-                'EL':0,
-                'SU':0,
-                'PH':0,
-                'SB':0}
+                'BE':10,
+                'QM':9,
+                'NS':9,
+                'DS':12,
+                'SS':9,
+                'SK':11,
+                'EL':10,
+                'SU':9,
+                'PH':11,
+                'SB':21,
+                'DI':9}
 
 code_names = {'BR':'Brute',
             'CH':'Cragheart',
@@ -119,7 +153,8 @@ code_names = {'BR':'Brute',
             'EL':'Triforce',
             'SU':'Circles',
             'PH':'Cthulu Face',
-            'SB':'Saw'}
+            'SB':'Saw',
+            'DI':'Diviner'}
 
 code_names_inv = {v: k for k, v in code_names.items()}
 
@@ -223,8 +258,7 @@ class App:
         iconpath = 'assets\\Icon Pack\\small'
         self.icons = {}
         for icon in os.listdir(iconpath):
-            name = icon.split('.')[0]
-            name = name.split('-')[0]
+            name = icon.split('-')[1]
             imgfile = '{}\\{}'.format(iconpath, icon) 
             self.icons[name] = tk.PhotoImage(file = imgfile)
             self.classmenu.menu.add_command(label='', image=self.icons[name], compound="left", command = lambda my_icon = name: self.update_class(my_icon))
@@ -257,7 +291,7 @@ class App:
     def update_class(self, ghclass = ''):
         if ghclass == '':
             pass
-        elif names[ghclass] == '-':
+        elif locked[ghclass]:
                 mb.showinfo('', 'This class is locked')
                 return
         else:
