@@ -19,7 +19,6 @@ __pycache__/
 !icons/*.png
 !assets/Icon Pack/small/*.png
 !assets/Icon Pack/widgets/*.png
-!ghclass/*/img/*.png
 
 
 # Distribution / packaging
