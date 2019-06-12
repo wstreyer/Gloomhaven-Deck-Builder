@@ -1,0 +1,1 @@
+{'index': '441', 'title': 'Master Physician', 'level': '7', 'initiative': '49', 'content': '\n\nAdd +4 Heal       to all your\nHeal actions this round.\n\n1\n\n1\n\nBefore your next six Heal actions, remove all \nnegative conditions on the healed figure(s).\n\n1\n\n2\n\n2 49\n\n7\nMaster Physician\n\n441', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': []}

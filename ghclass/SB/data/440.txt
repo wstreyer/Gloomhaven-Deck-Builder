@@ -1,0 +1,1 @@
+{'index': '440', 'title': 'Prescription', 'level': '6', 'initiative': '06', 'content': '\n\nGive all adjacent allies one\n“Large Medical Pack” ability card.\n\n2\n\nGive all adjacent allies one\n“Medical Pack” ability card.\n\n1\n\n2\n\n2 06\n\n6\nPrescription\n\n440', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': []}

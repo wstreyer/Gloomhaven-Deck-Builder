@@ -1,0 +1,1 @@
+{'index': '431', 'title': 'Hamstring', 'level': '2', 'initiative': '62', 'content': '\n\nMove       6\n\nIMMOBILIZE\nSelf\n\nAttack       4\nIMMOBILIZE\n\n1\n\n2\n\n2 62\n\n2\nHamstring\n\n431', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (256, 128), 'action': 'top', 'type': 'attack'}, {'xy': (250, 358), 'action': 'btm', 'type': 'move'}]}

@@ -1,0 +1,1 @@
+{'index': '439', 'title': 'Euthanize', 'level': '6', 'initiative': '27', 'content': '\n\nAttack       1\nPOISON      -\nWOUND\n\nSTUN      -\n\nKill one adjacent normal enemy with at \nleast two negative condition tokens.\n\n1\n\n2\n\n2 27\n\n6\nEuthanize\n\n439', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (254, 354), 'action': 'btm', 'type': 'attack'}]}

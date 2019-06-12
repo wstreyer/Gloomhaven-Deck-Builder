@@ -1,0 +1,1 @@
+{'index': '425', 'title': 'Large Medical Pack', 'level': 'X', 'initiative': '30', 'content': '\n\nHeal       8\nSelf\n\nThis card cannot be used for basic actions \nor to negate a source of damage.\n\nReturn this card to the Sawbone’s supply.\n\nHeal       8\nSelf\n\nReturn this card to the Sawbone’s supply.\n\n30\n\nX\nLarge Medical Pack\n\n425'}

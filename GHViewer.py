@@ -37,7 +37,7 @@ locked = {'BR':False,
         'EL':True,
         'SU':True,
         'PH':True,
-        'SB':True,
+        'SB':False,
         'DI':False}
 
 resourceurl = 'https://drive.google.com/uc?export=download&id='

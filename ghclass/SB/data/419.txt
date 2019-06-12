@@ -1,0 +1,1 @@
+{'index': '419', 'title': 'Medical Pack', 'level': 'X', 'initiative': '50', 'content': '\n\nHeal       4\nSelf\n\nThis card cannot be used for basic actions \nor to negate a source of damage.\n\nReturn this card to the Sawbone’s supply.\n\nHeal       4\nSelf\n\nReturn this card to the Sawbone’s supply.\n\n50\n\nX\nMedical Pack\n\n419'}

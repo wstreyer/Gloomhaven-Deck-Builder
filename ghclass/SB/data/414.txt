@@ -1,0 +1,1 @@
+{'index': '414', 'title': 'Battlefield Medicine', 'level': '1', 'initiative': '83', 'content': '\n\nPrevent all negative conditions on\nyourself and all allies this round.\n\nGive one adjacent ally one\n“Large Medical Pack” ability card.\n\n2\n\n2\n\n2 83\n\n1\nBattlefield Medicine\n\n414', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': []}

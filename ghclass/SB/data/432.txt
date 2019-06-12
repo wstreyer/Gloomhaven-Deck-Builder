@@ -1,0 +1,1 @@
+{'index': '432', 'title': 'Precaution', 'level': '2', 'initiative': '09', 'content': '\n\nGive one adjacent ally one\n“Medical Pack” ability card.\n\n1\n\nShield      1\nAffect all allies\n\n2\n\n2 09\n\n2\nPrecaution\n\n432', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (248, 128), 'action': 'top', 'type': 'shield'}]}

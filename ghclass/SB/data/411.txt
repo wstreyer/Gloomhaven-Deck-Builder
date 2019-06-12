@@ -1,0 +1,1 @@
+{'index': '411', 'title': 'Bloody Saw', 'level': '1', 'initiative': '25', 'content': '\n\nLoot      1\n\nAttack       3\nWOUND\n\n1\n\n2\n\n2 25\n\n1\nBloody Saw\n\n411', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (256, 126), 'action': 'top', 'type': 'attack'}]}

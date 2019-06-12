@@ -1,0 +1,1 @@
+{'index': '408', 'title': 'Hand of the Surgeon', 'level': '1', 'initiative': '62', 'content': '\n\nAll your heal actions this round affect \nyourself and all adjacent allies.\n\nAttack       3\n\n1\n\n2\n\n2 62\n\n1\nHand of the Surgeon\n\n408', 'summon': 'none', 'hex1': 0, 'hex2': 0, 'enhancements': [{'xy': (256, 140), 'action': 'top', 'type': 'attack'}]}
