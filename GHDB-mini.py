@@ -166,6 +166,7 @@ class App:
         self.thread_count = 16
         self.fmt = 'png'
         self.card_data = {'level': 1}
+        self.pcwd = os.path.dirname(os.getcwd())
 
         #Create a notebook
         self.nb = ttk.Notebook(self.main)
@@ -215,21 +216,21 @@ class App:
         #Viewer controls
         self.control_frame = tk.Frame(self.viewer_frame)
         self.control_frame.pack()
-        self.left_arrow = tk.PhotoImage(file = 'assets\\Icon Pack\\widgets\\left-arrow.png')
+        self.left_arrow = tk.PhotoImage(file = '{}\\assets\\Icon Pack\\widgets\\left-arrow.png'.format(self.pcwd))
         self.prev = tk.Button(self.control_frame, text = 'Prev', image = self.left_arrow, command = lambda: self.prev_card())
         self.prev.pack(side = tk.LEFT)
         self.classmenu = tk.Menubutton(self.control_frame, text="Class", font = ('Nyala', 10, 'bold'),relief=tk.RAISED )
         self.classmenu.menu = tk.Menu(self.classmenu, tearoff = 0 )
         self.classmenu["menu"] = self.classmenu.menu
         self.classmenu.pack(side = tk.LEFT)
-        iconpath = 'assets\\Icon Pack\\small'
+        iconpath = '{}\\assets\\Icon Pack\\small'.format(self.pcwd)
         self.icons = {}
         for icon in os.listdir(iconpath):
             name = icon.split('-')[1]
             imgfile = '{}\\{}'.format(iconpath, icon) 
             self.icons[name] = tk.PhotoImage(file = imgfile)
             self.classmenu.menu.add_command(label='', image=self.icons[name], compound="left", command = lambda my_icon = name: self.update_class(my_icon))
-        self.right_arrow = tk.PhotoImage(file = 'assets\\Icon Pack\\widgets\\right-arrow.png')
+        self.right_arrow = tk.PhotoImage(file = '{}\\assets\\Icon Pack\\widgets\\right-arrow.png'.format(self.pcwd))
         self.next = tk.Button(self.control_frame, text = 'Next', image = self.right_arrow, command = lambda: self.next_card())
         self.next.pack(side = tk.LEFT)       
         
@@ -272,7 +273,7 @@ class App:
     def update_card(self):
         self.card_index = self.index + global_index[self.ghclass]
         try:
-            with open('ghclass\{0}\data\{1:03d}.dat'.format(self.ghclass, self.card_index), 'rb') as f:
+            with open('{}\\ghclass\{0}\data\{1:03d}.dat'.format(self.pcwd, self.ghclass, self.card_index), 'rb') as f:
                 self.card_data = pickle.load(f)
         except FileNotFoundError:
             pass
@@ -304,7 +305,8 @@ class App:
         self.index = 0
 
          #resource locations
-        imgpath = 'ghclass\{}\img'.format(self.ghclass)
+        
+        imgpath = '{}\\ghclass\{}\img'.format(self.pcwd, self.ghclass)
 
         #Retrieve class card images
         if Path(imgpath).exists():
