@@ -2,65 +2,55 @@ import tkinter as tk
 from PIL import Image, ImageTk
 import os
 
-
-
-
-
-
-
-
-card_frames = []
-titles = []
-cards = []
-images = []
-
-class_index = 0
-num_cards = 13
-
-
 class Card_Carousel(tk.Canvas):
     def __init__(self, master, imgpath):
         self.W = root.winfo_screenwidth()
         self.H = root.winfo_screenheight()
         self.imgpath = imgpath
-        self._
+        self.images = []
+        self.cards = []
+        self.frames = []
+        self.frame = tk.Frame(master)
+        self.frame.pack(fill = tk.X, expand = tk.TRUE)
 
-        self.canvas = tk.Canvas(master, bg = '#FFFFFF', scrollregion = (0, 0, int(2*self.W), int(self.H/2)))
-        self.hbar = tk.Scrollbar(frame,orient = tk.HORIZONTAL)
+        self.canvas = tk.Canvas(self.frame, bg = '#FFFFFF', scrollregion = (0, 0, int(2*self.W), int(self.H/2)))
+        self.hbar = tk.Scrollbar(self.frame,orient = tk.HORIZONTAL)
         self.hbar.pack(side = tk.BOTTOM, fill = tk.X)
         self.hbar.config(command = self.canvas.xview)
 
         self.canvas.config(xscrollcommand = self.hbar.set)
         self.inner = tk.Frame(self.canvas)
         self.canvas.create_window(0, 0, anchor = tk.NW, window = self.inner)
-        self.canvas.pack(fill = tk.NONE, expand = tk.FALSE)
+        self.canvas.pack(fill = tk.BOTH, expand = tk.TRUE)
 
-        for i in range(0, num_cards):    
-            img  = Image.open('{}\{}'.format(cardpath, '{}.png'.format(class_index+1+i)))
+        cards = os.listdir(self.imgpath)
+        cards = [int(card.split('.')[0]) for card in cards]
+        self.class_index = min(cards)
+        self.num_cards = len(cards)
+
+        for i in range(0, self.num_cards):    
+            img  = Image.open('{}\{}'.format(self.imgpath, '{}.png'.format(self.class_index+i)))
             (w, h) = img.size
-            (w, h) = (int(2*w/3), int(2*h/3))
+            (w, h) = (int(w/2), int(h/2))
             img = img.resize((w, h), Image.ANTIALIAS)
 
-            images.append(ImageTk.PhotoImage(img))
+            self.images.append(ImageTk.PhotoImage(img))
 
-
-            W = (w + 10)*num_cards
-            canvas.config(scrollregion=(0, 0, W, 550))
-            card_frames.append(tk.Frame(inner_frame))
-            card_frames[i].pack(side = tk.LEFT)
+            W = (w + 10)*self.num_cards
+            self.canvas.config(scrollregion=(0, 0, W, h))
             
-            cards.append(tk.Label(card_frames[i], image = images[i]))
-            cards[i].pack()
+            self.frames.append(tk.Frame(self.inner))
+            self.frames[i].pack(side = tk.LEFT)
             
-            titles.append(tk.Label(card_frames[i], text = 'Card {}'.format(class_index+1+i)))
-            titles[i].pack()
+            self.cards.append(tk.Label(self.frames[i], image = self.images[i]))
+            self.cards[i].pack()
 
 root = tk.Tk()
 frame = tk.Frame(root,width=1920,height=1080)
-
+frame.pack()
+frame.pack_propagate(0)
 pcwd = os.path.dirname(os.getcwd())
 cardpath = '{}\\ghclass\\BR\\img'.format(pcwd)
-carousel = Card_Carousel(frame, cardpath)
-
-frame.pack()
+carousel1 = Card_Carousel(frame, cardpath)
+carousel2 = Card_Carousel(frame, cardpath)
 root.mainloop()
