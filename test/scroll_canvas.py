@@ -2,7 +2,7 @@ import tkinter as tk
 from PIL import Image, ImageTk
 import os
 
-class GHCLass():
+class GHClass():
     names = {'BR':'Brute',
         'CH':'Cragheart',
         'MT':'Mindthief',
