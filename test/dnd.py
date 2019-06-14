@@ -1,8 +1,6 @@
-import tkinter
-
+import tkinter as tk
 
 # The factory function
-
 def dnd_start(source, event):
     h = DndHandler(source, event)
     if h.root:
@@ -10,13 +8,9 @@ def dnd_start(source, event):
     else:
         return None
 
-
 # The class that does the work
-
 class DndHandler:
-
     root = None
-
     def __init__(self, source, event):
         if event.num > 5:
             return
@@ -102,13 +96,21 @@ class DndHandler:
 # ----------------------------------------------------------------------
 # The rest is here for testing and demonstration purposes only!
 
-class Icon:
-
-    def __init__(self, name):
-        self.name = name
+class DnDLabel(tk.Label):
+    def __init__(self, master, **kwargs):
+        self.kwargs = {}
+        self.kwargs.update(**kwargs)
+        self.master = master
         self.canvas = self.label = self.id = None
+        self.attach(self.master)
 
-    def attach(self, canvas, x=10, y=10):
+    def config(self, **kwargs):
+        self.kwargs.update(**kwargs)
+        if self.label is not None:
+            self.label.config(**kwargs)
+    
+    def attach(self, master, x=0, y=0):
+        canvas = master.canvas
         if canvas is self.canvas:
             self.canvas.coords(self.id, x, y)
             return
@@ -116,13 +118,13 @@ class Icon:
             self.detach()
         if not canvas:
             return
-        label = tkinter.Label(canvas, text=self.name,
-                              borderwidth=2, relief="raised")
+        
+        label = tk.Label(canvas, self.kwargs)
         id = canvas.create_window(x, y, window=label, anchor="nw")
         self.canvas = canvas
         self.label = label
         self.id = id
-        label.bind("<ButtonPress>", self.press)
+        self.label.bind("<ButtonPress>", self.press)
 
     def detach(self):
         canvas = self.canvas
@@ -163,13 +165,16 @@ class Icon:
         pass
 
 
-class Tester:
-
-    def __init__(self, root):
-        self.top = tkinter.Toplevel(root)
-        self.canvas = tkinter.Canvas(self.top, width=100, height=100)
-        self.canvas.pack(fill="both", expand=1)
+class DnDFrame(tk.Frame):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.canvas = tk.Canvas(self)
+        self.canvas.pack(expand=1, fill = tk.BOTH)
         self.canvas.dnd_accept = self.dnd_accept
+        self.snap = False
+
+    def set_snap(self, snap: bool):
+        self.snap = snap
 
     def dnd_accept(self, source, event):
         return self
@@ -188,34 +193,42 @@ class Tester:
         self.canvas.move(self.dndid, x-x1, y-y1)
 
     def dnd_leave(self, source, event):
-        self.top.focus_set() # Hide highlight border
+        self.master.focus_set() # Hide highlight border
         self.canvas.delete(self.dndid)
         self.dndid = None
 
     def dnd_commit(self, source, event):
         self.dnd_leave(source, event)
-        x, y = source.where(self.canvas, event)
-        source.attach(self.canvas, x, y)
+        if self.snap:
+            (x, y) = (0, 0)
+        else:
+            x, y = source.where(self.canvas, event)
+        source.attach(self, x, y)
 
 
-def test():
-    root = tkinter.Tk()
+def test():  
+    root = tk.Tk()
     root.geometry("+1+1")
-    tkinter.Button(command=root.quit, text="Quit").pack()
-    t1 = Tester(root)
-    t1.top.geometry("+1+60")
-    t2 = Tester(root)
-    t2.top.geometry("+120+60")
-    t3 = Tester(root)
-    t3.top.geometry("+240+60")
-    i1 = Icon("ICON1")
-    i2 = Icon("ICON2")
-    i3 = Icon("ICON3")
-    i1.attach(t1.canvas)
-    i2.attach(t2.canvas)
-    i3.attach(t3.canvas)
+    left_frame = tk.Frame(root, bd = 5, bg = '#0000FF')
+    left_frame.pack(side = tk.LEFT, anchor = tk.NW, expand = tk.TRUE, fill = tk.BOTH)
+    right_frame = tk.Frame(root, bd = 5, bg = '#FF0000')
+    right_frame.pack(side = tk.LEFT, anchor = tk.NW, expand = tk.TRUE, fill = tk.BOTH)
+    
+    left_dnd_frame = DnDFrame(left_frame)
+    right_dnd_frame = DnDFrame(right_frame)
+    left_dnd_frame.pack()
+    right_dnd_frame.pack()
+    left_dnd_frame.config(bd = 5, relief = tk.RAISED)
+    right_dnd_frame.config(bd = 5, relief = tk.SUNKEN)
+    
+    image1 = tk.PhotoImage(file = 'shield.png')
+    dnd_label1 = DnDLabel(left_dnd_frame, text='Label1', borderwidth=2, relief="raised", bg = 'red', image = image1)
+    dnd_label2 = DnDLabel(right_dnd_frame, text='Label2', borderwidth=2, relief="raised", bg = 'blue')
+    
+    #dnd_label1.config(text='Left-Blue')
+    #dnd_label2.config(text='Right-Red')
+    
     root.mainloop()
-
 
 if __name__ == '__main__':
     test()
